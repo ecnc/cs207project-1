@@ -12,3 +12,5 @@ for i in range(0,1000):
     s += i
 
 print("sum",s)
+	
+

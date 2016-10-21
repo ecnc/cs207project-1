@@ -21,3 +21,16 @@ class TimeSeries:
     def __repr__(self):
         class_name = type(self).__name__
         return "%s(%s)" % (class_name, reprlib.repr(self._data))
+
+    def __iter__(self):
+        for item in self._data:
+            yield item
+
+    def itertimes(self):
+        for i,item in enumerate(self._data):
+            yield i
+
+    def iteritems(self):
+        for i,item in enumerate(self._data):
+              yield (i,item)
+    	
