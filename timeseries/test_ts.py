@@ -14,5 +14,5 @@ def test_noninput():
         TimeSeries()
 
 def test_typical():
-    assert TimeSeries([1, 2, 3]) == str('TimeSeries([1, 2, 3])')
+    assert TimeSeries([1, 2, 3]) == 'TimeSeries([1, 2, 3])'
 
