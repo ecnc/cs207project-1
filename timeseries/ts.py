@@ -1,12 +1,24 @@
 import reprlib
 class TimeSeries:
     """
-    Implementation of TimeSeries.
-    TODO:
-    1. Detailed documentation, including docstrings.
-    2. Add tests.
+    class TimeSeries:
+    A class that takes a list with numerical values.
+    Input must be 'int' or 'float' types.
+    print(TimeSeries) will return its first 6 elements together with its length.
     """
     def __init__(self, data=None):
+	# check input length and typ
+        if type(data).__name__ != 'NoneType':
+            # check input length
+            if  len(data) == 0:
+                raise ValueError("input must be with length of at least 1")
+            # check input type
+            if any(not isinstance(x, int) and not isinstance(x, float) for x in data):
+                raise TypeError("can only take 'int' and 'float' types as input")
+        else:
+            raise TypeError("warning: there is no input!")
+
+        # start to append data
         self._data = []
         if data:
             for item in data:
@@ -21,6 +33,9 @@ class TimeSeries:
     def __repr__(self):
         class_name = type(self).__name__
         return "%s(%s)" % (class_name, reprlib.repr(self._data))
+    def __str__(self):
+        self._len = len(self._data)
+        return "%s, length = %s" % (reprlib.repr(self._data), self._len)
 
     def __iter__(self):
         for item in self._data:
