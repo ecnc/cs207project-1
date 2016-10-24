@@ -18,9 +18,9 @@ def test_noninput():
 
 # test typical input
 def test_typical():
-    assert TimeSeries([1, 2, 3]) == 'TimeSeries([1, 2, 3])'
+    assert TimeSeries([1, 2, 3]) == str('TimeSeries([1, 2, 3])')
 
 # test typical print
 def test_typical_print():
-    assert print(TimeSeries([1, 2, 3]) == '[1, 2, 3], length = 3'
+    assert print(TimeSeries([1, 2, 3]) == str('[1, 2, 3], length = 3')
 
