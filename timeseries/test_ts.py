@@ -18,4 +18,3 @@ def test_typical():
 
 def test_typical_print():
     assert print(TimeSeries([1, 2, 3]) == str('[1, 2, 3], length = 3')
-
