@@ -24,11 +24,3 @@ def test_typical():
 def test_typical_print():
     assert print(TimeSeries([1, 2, 3]) == '[1, 2, 3], length = 3'
 
-# test long input
-#def test_longinput():
-#    assert TimeSeries(range(10)) == 'TimeSeries([0, 1, 2, 3, 4, 5, ...])'
-
-# test long print
-#def test_long_print():
-#    assert print(TimeSeries(range(10)) == '[0, 1, 2, 3, 4, 5, ...], length = 10'
-
