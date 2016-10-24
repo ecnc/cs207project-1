@@ -13,6 +13,3 @@ def test_noninput():
     with raises(TypeError):
         TimeSeries()
 
-def test_typical():
-    assert TimeSeries([1, 2, 3]) == 'TimeSeries([1, 2, 3])'
-
