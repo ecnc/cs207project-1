@@ -1,16 +1,14 @@
 from ts import TimeSeries
+from pytest import raises
 
-# projecteuler.net/problem=1
-# Note: this is decidely *not* the intended purpose of this class.
+ts = TimeSeries(range(0,10,3))
 
-threes = TimeSeries(range(0,1000,3))
-fives = TimeSeries(range(0,1000,5))
+def test_iter():
+	assert list(ts) == [0,3,6,9]
 
-s = 0
-for i in range(0,1000):
-  if i in threes or i in fives:
-    s += i
+def test_itertimes():
+	assert list(ts.itertimes()) == [0,1,2,3]
 
-print("sum",s)
-	
+def test_iteritems():
+	assert list(ts.iteritems()) == [(0,0),(1,3),(2,6),(3,9)]
 
