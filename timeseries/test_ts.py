@@ -30,23 +30,5 @@ def test_longinput():
 
 # test long print
 def test_long_print():
-    assert print(TimeSeries(range(10)) = '[0, 1, 2, 3, 4, 5, ...], length = 10'
-
-
-# Amy: are the following testing codes written by you?
-# I am not sure. So, I comment them for now. MLWu
-
-# projecteuler.net/problem=1
-# Note: this is decidely *not* the intended purpose of this class.
-
-#threes = TimeSeries(range(0,1000,3))
-#fives = TimeSeries(range(0,1000,5))
-
-#s = 0
-#for i in range(0,1000):
-#  if i in threes or i in fives:
-#    s += i
-
-#print("sum",s)
-	
+    assert print(TimeSeries(range(10)) == '[0, 1, 2, 3, 4, 5, ...], length = 10'
 
