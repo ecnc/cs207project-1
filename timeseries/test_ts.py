@@ -16,5 +16,3 @@ def test_noninput():
 def test_typical():
     assert TimeSeries([1, 2, 3]) == str('TimeSeries([1, 2, 3])')
 
-def test_typical_print():
-    assert print(TimeSeries([1, 2, 3]) == str('[1, 2, 3], length = 3')
