@@ -1,16 +1,26 @@
 from ts import TimeSeries
+from pytest import raises
 
-# projecteuler.net/problem=1
-# Note: this is decidely *not* the intended purpose of this class.
+def test_zerolen():
+    with raises(ValueError):
+        TimeSeries([])
 
-threes = TimeSeries(range(0,1000,3))
-fives = TimeSeries(range(0,1000,5))
+def test_wrongtype():
+    with raises(TypeError):
+        TimeSeries([1, 2, 'hi'])
 
-s = 0
-for i in range(0,1000):
-  if i in threes or i in fives:
-    s += i
+def test_noninput():
+    with raises(TypeError):
+        TimeSeries()
 
-print("sum",s)
-	
+def test_typical_input_repr():
+    assert repr(TimeSeries([1, 2, 3])) == 'TimeSeries([1, 2, 3])'
 
+def test_typical_input_str():
+    assert str(TimeSeries([1, 2, 3])) == '[1, 2, 3], length = 3'
+
+def test_long_input_repr():
+    assert repr(TimeSeries(range(10))) == 'TimeSeries([0, 1, 2, 3, 4, 5, ...])'
+
+def test_long_input_str():
+    assert str(TimeSeries(range(10))) == '[0, 1, 2, 3, 4, 5, ...], length = 10'
