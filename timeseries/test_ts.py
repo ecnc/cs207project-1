@@ -1,4 +1,5 @@
 from ts import TimeSeries
+from ts import ArrayTimeSeries
 from pytest import raises
 def test_zerolen():
     with raises(ValueError):
@@ -35,3 +36,13 @@ def test_long_input_repr():
 
 def test_long_input_str():
     assert str(TimeSeries(range(10))) == '[0, 1, 2, 3, 4, 5, ...], length = 10'
+
+def test_len():
+    array_ts = ArrayTimeSeries(range(0,10,3))	
+    assert len(array_ts) == 4
+
+def test_getitem():
+    array_ts = ArrayTimeSeries(range(0,10,3))
+    assert array_ts[2] == 6
+
+
