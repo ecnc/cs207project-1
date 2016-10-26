@@ -1,6 +1,5 @@
 from ts import TimeSeries
 from pytest import raises
-
 def test_zerolen():
     with raises(ValueError):
         TimeSeries([])
@@ -15,6 +14,18 @@ def test_noninput():
 
 def test_typical_input_repr():
     assert repr(TimeSeries([1, 2, 3])) == 'TimeSeries([1, 2, 3])'
+
+def test_iter():
+	ts = TimeSeries(range(0,10,3))
+	assert list(ts) == [0,3,6,9]
+
+def test_itertimes():
+	ts = TimeSeries(range(0,10,3))
+	assert list(ts.itertimes()) == [0,1,2,3]
+
+def test_iteritems():
+	ts = TimeSeries(range(0,10,3))
+	assert list(ts.iteritems()) == [(0,0),(1,3),(2,6),(3,9)]
 
 def test_typical_input_str():
     assert str(TimeSeries([1, 2, 3])) == '[1, 2, 3], length = 3'
