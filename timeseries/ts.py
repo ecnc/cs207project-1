@@ -42,15 +42,13 @@ class TimeSeries:
 import numpy as np 
 class ArrayTimeSeries(TimeSeries):
     """
-    Implementation of ArrayTimeSeries.
-    TODO:
-    1. Detailed documentation, including docstrings.
-    2. Add tests.
+    Implementation of ArrayTimeSeries
     """
     def __init__(self, data):
         if data:
             self._data = np.array(data)
-        self._data = np.array([])    
+        else:
+            self._data = np.array([])    
             
    
     
