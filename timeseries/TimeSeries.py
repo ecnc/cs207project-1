@@ -3,6 +3,8 @@ import collections
 import math
 import numpy as np
 from lazy import lazy
+from lazy import LazyOperation
+
 
 class TimeSeries:
     """
