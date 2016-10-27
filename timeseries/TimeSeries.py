@@ -120,7 +120,7 @@ class TimeSeries:
         identity = lambda x: x
         return LazyOperation(identity, self)
 
-# laze test
+# lazy test part
 @lazy
 def check_length(a, b):
     return len(a) == len(b)

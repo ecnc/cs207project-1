@@ -3,9 +3,10 @@ class LazyOperation:
     LazyOperation
 
     TODO:
-    1. how to test lazy?
+    1. how to test lazy
     1. test;
     2. documatation;
+
     """
 
     def __init__(self, function, *args, **kwargs):
@@ -24,7 +25,6 @@ def lazy(function):
         return LazyOperation(function, *args, **kwargs)
     return create_thunk
 
-"""
 #just for test
 @lazy
 def add(a, b):
@@ -33,4 +33,3 @@ def add(a, b):
 @lazy
 def mul(a, b):
     return a * b
-"""
