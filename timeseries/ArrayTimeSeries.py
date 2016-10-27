@@ -5,7 +5,7 @@ class ArrayTimeSeries(TimeSeries):
 	"""
 	ArrayTimeSeries.
 
-	Todo:
+	TODO:
 	1. testcases;
 	2. documents
 	"""

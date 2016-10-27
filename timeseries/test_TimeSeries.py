@@ -5,7 +5,7 @@ from pytest import raises
 """
 test function
 
-todo:
+TODO:
 1. add more testcases;
 
 """

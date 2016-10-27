@@ -2,12 +2,13 @@ import reprlib
 import collections
 import math
 import numpy as np
+from lazy import lazy
 
 class TimeSeries:
     """
     A class with a list of time points and a list of values.
 
-    todo:
+    TODO:
     1. add test cases;
     2. add lazy function;
 
@@ -112,3 +113,14 @@ class TimeSeries:
                     value_seq.append(new_v)
                     break
         return TimeSeries(value_seq, time_seq)
+
+    @property
+    def lazy(self):
+        # indentity function
+        identity = lambda x: x
+        return LazyOperation(identity, self)
+
+# laze test
+@lazy
+def check_length(a, b):
+    return len(a) == len(b)
