@@ -50,7 +50,7 @@ class TimeSeries:
         else:
             self._time = list(range(len(values)))
         self._value = list(values)
-        self._timeseries = zip(self._time, self._value)
+        self._timeseries = list(zip(self._time, self._value))
         self._dict = {}
 
     def __len__(self):
@@ -63,23 +63,23 @@ class TimeSeries:
         self._value[index] = value
         self._timeseries[index] = (value, index)
 
+
     def __str__(self):
-        if len(self._timeseries) > 5:
-            return 'Length: {} [{}, ..., {}]'.format\
-            (len(self._timeseries), self._timeseries[0], \
+        if len(self) > 5:
+            return 'Length: {}, [{}, {}, ..., {}]'.format\
+            (len(self), self._timeseries[0], self._timeseries[1],\
                 self._timeseries[-1])
         else:
-            return '[' + ', '.join('{}'.format\
-                (item for item in self._timeseries)) + ']'
+            return '{}'.format([item for item in self._timeseries])
+
 
     def __repr__(self):
-        if len(self._timeseries) > 5:
-            return 'TimeSeries(Length: {} [{}, ..., {}])'.format\
-            (len(self._timeseries), self._timeseries[0], \
+        if len(self) > 5:
+            return 'TimeSeries(Length: {}, [{}, {}, ..., {}])'.format\
+            (len(self), self._timeseries[0], self._timeseries[1],\
                 self._timeseries[-1])
         else:
-            return 'TimeSeries([' + ', '.join('{}'.format\
-                (item for item in self._timeseries)) + '])'
+            return 'TimeSeries: {}'.format([item for item in self._timeseries])
 
     def __iter__(self):
         for item in self._value:
@@ -126,3 +126,10 @@ class TimeSeries:
 @lazy
 def check_length(a, b):
     return len(a) == len(b)
+
+ts = TimeSeries(range(7), range(1,8))
+for item in ts._timeseries:
+    print (item)
+
+print (ts)
+print ("%r" % ts)
