@@ -126,10 +126,3 @@ class TimeSeries:
 @lazy
 def check_length(a, b):
     return len(a) == len(b)
-
-ts = TimeSeries(range(7), range(1,8))
-for item in ts._timeseries:
-    print (item)
-
-print (ts)
-print ("%r" % ts)
