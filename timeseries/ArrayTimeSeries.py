@@ -3,9 +3,10 @@ import reprlib
 import collections
 import math
 from TimeSeries import TimeSeries
-from lazy import *
+from Interface import SizedContainerTimeSeriesInterface
+from Lazy import lazy
 
-class ArrayTimeSeries(TimeSeries):
+class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
     """
     ArrayTimeSeries.
 
@@ -18,59 +19,9 @@ class ArrayTimeSeries(TimeSeries):
         self._value = np.array(values)
         self._timeseries = np.array(list(zip(self._time, self._value)))
 
-    def __len__(self):
-        return len(self._value)
-
-    def __getitem__(self, index):
-        return self._timeseries[index]
-
     def __setitem__(self, index, value):
         self._value[index] = value
         self._timeseries[index][1] = value
-
-    def __str__(self):
-        if len(self) > 5:
-            return 'Length: {}, [{}, {}, ..., {}]'.format\
-            (len(self), self._timeseries[0], self._timeseries[1],\
-                self._timeseries[len(self) - 1])
-        else:
-            return '{}'.format([item for item in self._timeseries])
-
-    def __repr__(self):
-        if len(self) > 5:
-            return 'TimeSeries(Length: {}, [{}, {}, ..., {}])'.format\
-            (len(self), self._timeseries[0], self._timeseries[1],\
-                self._timeseries[len(self) - 1])
-        else:
-            return 'TimeSeries: {}'.format([item for item in self._timeseries])
-
-    def __iter__(self):
-        for item in self._value:
-            yield item
-
-    def __contains__(self, val):
-        return val in self._value
-
-    def values(self):
-        return self._value
-
-    def times(self):
-        return self._time
-
-    def items(self):
-        return self._timeseries
-
-    def itervalues(self):
-        for item in self._value:
-            yield item
-
-    def itertimes(self):
-        for item in self._time:
-            yield item
-
-    def iteritems(self):
-        for item in zip(self._time, self._value):
-            yield item
 
     def __add__(self, other):
         if not isinstance(other, ArrayTimeSeries):

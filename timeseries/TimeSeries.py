@@ -2,9 +2,10 @@ import reprlib
 import collections
 import math
 import numpy as np
-from lazy import *
+from Lazy import lazy
+from Interface import SizedContainerTimeSeriesInterface
 
-class TimeSeries:
+class TimeSeries(SizedContainerTimeSeriesInterface):
     """
     A class with a list of time points and a list of values.
 
@@ -51,59 +52,9 @@ class TimeSeries:
         self._timeseries = list(zip(self._time, self._value))
         self._dict = {}
 
-    def __len__(self):
-        return len(self._value)
-
-    def __getitem__(self, index):
-        return self._timeseries[index]
-
     def __setitem__(self, index, value):
         self._value[index] = value
         self._timeseries[index] = (self._time[index], value)
-
-    def __str__(self):
-        if len(self) > 5:
-            return 'Length: {}, [{}, {}, ..., {}]'.format\
-            (len(self), self._timeseries[0], self._timeseries[1],\
-                self._timeseries[-1])
-        else:
-            return '{}'.format([item for item in self._timeseries])
-
-    def __repr__(self):
-        if len(self) > 5:
-            return 'TimeSeries(Length: {}, [{}, {}, ..., {}])'.format\
-            (len(self), self._timeseries[0], self._timeseries[1],\
-                self._timeseries[-1])
-        else:
-            return 'TimeSeries: {}'.format([item for item in self._timeseries])
-
-    def __iter__(self):
-        for item in self._value:
-            yield item
-
-    def __contains__(self, val):
-        return val in self._value
-
-    def values(self):
-        return np.array(self._value)
-
-    def times(self):
-        return np.array(self._time)
-
-    def items(self):
-        return self._timeseries
-
-    def itervalues(self):
-        for item in self._value:
-            yield item
-
-    def itertimes(self):
-        for item in self._time:
-            yield item
-
-    def iteritems(self):
-        for item in zip(self._time, self._value):
-            yield item
 
     def __add__(self, other):
         if not isinstance(other, TimeSeries):
@@ -155,7 +106,7 @@ class TimeSeries:
                 value_seq.append(self._time[len(self._time) - 1])
                 continue
             for i in range(len(self._time) - 1):
-                if i_t >= self._time[i] and i_t <= self._time[i + 1]:
+                if self._time[i] <= i_t <= self._time[i + 1]:
                     v_delta = self._value[i + 1] - self._value[i]
                     t_delta = self._time[i + 1] - self._time[i]
                     slop = v_delta / t_delta
