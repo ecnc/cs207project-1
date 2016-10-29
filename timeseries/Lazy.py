@@ -23,12 +23,3 @@ def lazy(function):
     def create_thunk(*args, **kwargs):
         return LazyOperation(function, *args, **kwargs)
     return create_thunk
-
-#just for test
-@lazy
-def add(a, b):
-    return a + b
-
-@lazy
-def mul(a, b):
-    return a * b
