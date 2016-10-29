@@ -4,7 +4,7 @@ import collections
 import math
 from TimeSeries import TimeSeries
 from Interface import SizedContainerTimeSeriesInterface
-from Lazy import lazy
+from Lazy import lazy, LazyOperation
 
 class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
     """

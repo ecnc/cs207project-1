@@ -27,14 +27,6 @@ def test_setitem():
     ts[0] = 10
     assert ts[0] == (3, 10)
 
-def test_repr():
-    ts = TimeSeries(list(range(10)), list(range(1, 11)))
-    assert repr(ts) == "TimeSeries(Length: 10, [(1, 0), (2, 1), ..., (10, 9)])"
-
-def test_str():
-    ts = TimeSeries(list(range(10)), list(range(1, 11)))
-    assert str(ts) == "Length: 10, [(1, 0), (2, 1), ..., (10, 9)]"
-
 def test_contains():
     ts = TimeSeries(list(range(10)), list(range(1, 11)))
     assert (0 in ts) == True

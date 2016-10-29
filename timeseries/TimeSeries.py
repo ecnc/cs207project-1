@@ -2,7 +2,7 @@ import reprlib
 import collections
 import math
 import numpy as np
-from Lazy import lazy
+from Lazy import lazy, LazyOperation
 from Interface import SizedContainerTimeSeriesInterface
 
 class TimeSeries(SizedContainerTimeSeriesInterface):

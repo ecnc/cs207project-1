@@ -1,5 +1,6 @@
 import abc
 import reprlib
+import numpy as np
 
 class TimeSeriesInterface(abc.ABC):
     """
@@ -100,17 +101,12 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
         """
         Return a new timeseries that is a interpolation of current timeseries, with time given by time_seq
         """
-    @abc.abstractmethod
-    def mean(self):
-        """
-        Return the mean value of current timeseries
-        """
 
-    @abc.abstractmethod
+    def mean(self):
+        return np.mean(self._value)
+
     def std(self):
-        """
-        Return the standard deviation of current timeseries
-        """
+        return np.std(self._value)
 
     def __len__(self):
         return len(self._value)
