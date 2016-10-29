@@ -2,9 +2,7 @@ import reprlib
 import collections
 import math
 import numpy as np
-from lazy import lazy
-from lazy import LazyOperation
-
+from lazy import *
 
 class TimeSeries:
     """
@@ -63,7 +61,6 @@ class TimeSeries:
         self._value[index] = value
         self._timeseries[index] = (value, index)
 
-
     def __str__(self):
         if len(self) > 5:
             return 'Length: {}, [{}, {}, ..., {}]'.format\
@@ -71,7 +68,6 @@ class TimeSeries:
                 self._timeseries[-1])
         else:
             return '{}'.format([item for item in self._timeseries])
-
 
     def __repr__(self):
         if len(self) > 5:
@@ -85,6 +81,18 @@ class TimeSeries:
         for item in self._value:
             yield item
 
+    def __contains__(self, val):
+        return val in self._value
+
+    def values(self):
+        return np.array(self._value)
+
+    def times(self):
+        return np.array(self._time)
+
+    def items(self):
+        return self._timeseries
+
     def itervalues(self):
         for item in self._value:
             yield item
@@ -96,6 +104,46 @@ class TimeSeries:
     def iteritems(self):
         for item in zip(self._time, self._value):
             yield item
+
+    def __add__(self, other):
+        if not isinstance(other, TimeSeries):
+            raise TypeError("NotImplemented Error")
+        if len(self) != len(other) or self._time != other._time:
+            raise ValueError(str(self)+' and '+str(other)+' must have the same time points')
+        return TimeSeries(list(map(lambda x: x[0] + x[1]), zip(self._value, other._value)), self._time)
+
+    def __sub__(self, other):
+        if not isinstance(other, TimeSeries):
+            raise TypeError("NotImplemented Error")
+        if len(self) != len(other) or self._time != other._time:
+            raise ValueError(str(self) + ' and ' + str(other) + ' must have the same time points')
+        return TimeSeries(list(map(lambda x: x[0] - x[1]), zip(self._value, other._value)), self._time)
+
+    def __mul__(self, other):
+        if not isinstance(other, TimeSeries):
+            raise TypeError("NotImplemented Error")
+        if len(self) != len(other) or self._time != other._time:
+            raise ValueError(str(self) + ' and ' + str(other) + ' must have the same time points')
+        return TimeSeries(list(map(lambda x: x[0] * x[1]), zip(self._value, other._value)), self._time)
+
+    def __eq__(self, other):
+        if not isinstance(other, TimeSeries):
+            raise TypeError("NotImplemented Error")
+        if len(self) != len(other) or self._time != other._time:
+            raise ValueError(str(self) + ' and ' + str(other) + ' must have the same time points')
+        return self._value == other._value and self._time == other._time
+
+    def __abs__(self):
+        return math.sqrt(sum(x * x for x in self._value))
+
+    def __bool__(self):
+        return bool(abs(self))
+
+    def __neg__(self):
+        return TimeSeries([-v for v in self._value], self._time)
+
+    def __pos__(self):
+        return TimeSeries(self._value, self._time)
 
     def interpolate(self, time_seq):
         value_seq = []
@@ -126,3 +174,11 @@ class TimeSeries:
 @lazy
 def check_length(a, b):
     return len(a) == len(b)
+
+a = [1, 2]
+b = [3, 4]
+ts = TimeSeries(a, b)
+print (ts)
+
+c = ts.itertimes()
+print(next(c))

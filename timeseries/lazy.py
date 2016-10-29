@@ -8,7 +8,6 @@ class LazyOperation:
     2. documatation;
 
     """
-
     def __init__(self, function, *args, **kwargs):
         self._function = function
         self._args = args

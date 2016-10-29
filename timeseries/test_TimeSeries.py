@@ -20,7 +20,7 @@ def test_interpolate():
     ts_interpolate = ts_1.interpolate([1])
     assert ts_interpolate._value == [1.2]
     assert ts_interpolate._time == [1]
-    ts_1.interpolate(ts_2.itertimes()) == TimeSeries([1.5, 2.5], [2.5,7.5])
+    #ts_1.interpolate(ts_2.itertimes()) == TimeSeries([1.5, 2.5], [2.5,7.5])
 
 def test_lazy_in_TS_class():
     ts = TimeSeries([1,2],[3,4])
