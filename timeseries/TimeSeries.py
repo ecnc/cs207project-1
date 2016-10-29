@@ -59,7 +59,7 @@ class TimeSeries:
 
     def __setitem__(self, index, value):
         self._value[index] = value
-        self._timeseries[index] = (value, index)
+        self._timeseries[index] = (self._time[index], value)
 
     def __str__(self):
         if len(self) > 5:
@@ -110,14 +110,14 @@ class TimeSeries:
             raise TypeError("NotImplemented Error")
         if len(self) != len(other) or self._time != other._time:
             raise ValueError(str(self)+' and '+str(other)+' must have the same time points')
-        return TimeSeries(list(map(lambda x: x[0] + x[1]), zip(self._value, other._value)), self._time)
+        return TimeSeries(list(map(lambda x: x[0] + x[1], zip(self._value, other._value))), self._time)
 
     def __sub__(self, other):
         if not isinstance(other, TimeSeries):
             raise TypeError("NotImplemented Error")
         if len(self) != len(other) or self._time != other._time:
             raise ValueError(str(self) + ' and ' + str(other) + ' must have the same time points')
-        return TimeSeries(list(map(lambda x: x[0] - x[1]), zip(self._value, other._value)), self._time)
+        return TimeSeries(list(map(lambda x: x[0] - x[1], zip(self._value, other._value))), self._time)
 
     def __mul__(self, other):
         if not isinstance(other, TimeSeries):
@@ -174,11 +174,3 @@ class TimeSeries:
 @lazy
 def check_length(a, b):
     return len(a) == len(b)
-
-a = [1, 2]
-b = [3, 4]
-ts = TimeSeries(a, b)
-print (ts)
-
-c = ts.itertimes()
-print(next(c))
