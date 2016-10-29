@@ -100,6 +100,17 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
         """
         Return a new timeseries that is a interpolation of current timeseries, with time given by time_seq
         """
+    @abc.abstractmethod
+    def mean(self):
+        """
+        Return the mean value of current timeseries
+        """
+
+    @abc.abstractmethod
+    def std(self):
+        """
+        Return the standard deviation of current timeseries
+        """
 
     def __len__(self):
         return len(self._value)
@@ -152,6 +163,19 @@ class StreamTimeSeriesInterface(TimeSeriesInterface):
 
     @abc.abstractmethod
     def produce(self, chunk=1):
+        """
+        Produce a chunk sized bunch of new elements into the timeseries whenever it is called
+        """
         pass
 
+    @abc.abstractmethod
+    def online_mean(self):
+        """
+        Return a time series of means
+        """
 
+    @abc.abstractmethod
+    def online_std(self):
+        """
+        Return a time series of standard deviations
+        """
