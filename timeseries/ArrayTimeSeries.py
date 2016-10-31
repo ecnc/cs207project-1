@@ -165,8 +165,12 @@ class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
         Interpolate new time points from time_seq, the corresponding value is calculated on the assumption
         that the values follow a piecewise-linear function
 
+        Input must be a Python sequence
+
         Return an ArrayTimeSeries instance with time_seq as times and interpolated values as values
-        """  
+        """
+        if not isinstance(time_seq, collections.Sequence):
+            raise TypeError("Input must be Sequence")
         value_seq = []
         for i_t in time_seq:
             if i_t < self._time[0]:

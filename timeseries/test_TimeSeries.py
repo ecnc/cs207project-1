@@ -65,7 +65,7 @@ def test_invalid_input_add():
     with raises(TypeError):
         ts_sum = ts_1 + arry
 
-def test_valid_input_asub():
+def test_valid_input_sub():
     ts_1 = TimeSeries([1, 2], [3, 4])
     ts_2 = TimeSeries([1, 2], [3, 4])
     ts_sub = ts_1 - ts_2
