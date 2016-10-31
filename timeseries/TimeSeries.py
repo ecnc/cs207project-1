@@ -7,59 +7,27 @@ from Interface import SizedContainerTimeSeriesInterface
 
 class TimeSeries(SizedContainerTimeSeriesInterface):
     """
-    A class with a list of time points and a list of values.
+    A time series class that implements SizedContainerTimeSeriesInterface, with times and values stored in
+    two seperate lists.
 
-    TODO:
-    1. add test cases;
-    2. add lazy function;
+    The times and values should be numbers. It implements basic unary functions 
+    abs, bool, neg, pos, and binary functions add, sub, mul, eq, and interpolate function.
 
-    Parameters
-    ----------
-    value :
-        a list of values
-    time:
-        a list of times
-
-    Methods
-    -------
-    __init__(values, times = None):
-        Initialize a TimeSeries instance, inherited from SizedContainerTimeSeriesInterface
-    __getitem__(index):
-        Return the item with key equals to index
-    __setitem__(index,value):
-        Set the value at the index time by value
-    __add__(other):
-        Add two timeseries' values at each time point
-    __sub__(other):
-        Subtract by other's value at each time point
-    __mul__(other):
-        Multiply by other's value at each time point
-    __eq__(other):
-        Check if two TimeSeries instance are equal
-    __abs__():
-        Return the L^2 norm of values
-    __bool__():
-        Return true if the L^2 norm of values is non-zero
-    __neg__():
-        Return a new Timeseries instance with the opposite number of value at each time point
-    __pos__():
-        Return a same Timeseries instance
-    interpolate(time_seq)
-        return a timeseries sequence with interpolated value calculated by the input times sequence
-    __repr__():
-        Return the representation of this sequence
-    __iter__():
-        Iterator of the value of timeseries
-    itervalues():
-        Iterator of the timeseries value
-    itertimes():
-        Interator of the timeseries times
-    iteritems():
-        Interator of the timeseries times and value pairs
-
-
-    Examples
-    --------
+    >>> A=TimeSeries([3,4],[1,2])
+    >>> B=TimeSeries([5,6],[1,2])
+    >>> A+B
+    TimeSeries([(1, 8), (2, 10)]), length=2
+    >>> A-B
+    TimeSeries([(1, -2), (2, -2)]), length=2
+    >>> A==B
+    False
+    >>> -A
+    TimeSeries([(1, -3), (2, -4)]), length=2
+    >>> abs(A)
+    5.0
+    >>> A.interpolate([1.2])
+    TimeSeries([(1.2, 3.2)]), length=1
+  
     """
 
     def __init__(self, values, times=None):
@@ -75,7 +43,6 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
             self._time = list(range(len(values)))
         self._value = list(values)
         self._timeseries = list(zip(self._time, self._value))
-        self._dict = {}
 
     def __setitem__(self, index, value):
         """
@@ -176,7 +143,7 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
         Interpolate new time points from time_seq, the corresponding value is calculated on the assumption
         that the values follow a piecewise-linear function
 
-        Return the new extended TimeSeries instance
+        Return a TimeSeries instance with time_seq as times and interpolated values as values
         """         
         value_seq = []
         for i_t in time_seq:
