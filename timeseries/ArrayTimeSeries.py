@@ -42,12 +42,12 @@ class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
         self._timeseries: a n*2 numpy array with the times as the first column and values as the second column
         """
         if not isinstance(values, collections.Sequence) and not isinstance(values, np.ndarray):
-            raise TypeError("Input values should be Sequence")
+            raise TypeError("Input values must be Sequence")
         if times is not None:
             if not isinstance(times, collections.Sequence) and not isinstance(values, np.ndarray):
-                raise TypeError("Input times should be Sequence")
+                raise TypeError("Input times must be Sequence")
             if len(times) != len(values):
-                raise ValueError("Input values sequence and times sequence should have the same length")
+                raise ValueError("Input values sequence and times sequence must have the same length")
             self._time = np.array(times)
         else:
             self._time = np.array(list(range(len(values))))
@@ -63,9 +63,9 @@ class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
         and raise "TypeError" when the value is of illegal type
         """
         if not isinstance(index, numbers.Integral):
-            raise TypeError("Input index should be integer")
+            raise TypeError("Input index must be integer")
         if index >= len(self._value):
-            raise ValueError("Input index should not larger than the length of value sequence")
+            raise ValueError("Input index is out of boundary")
         self._value[index] = value
         self._timeseries[index][0] = value
 
@@ -81,7 +81,7 @@ class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
         if not isinstance(other, ArrayTimeSeries):
             raise TypeError("NotImplemented Error")
         if len(self) != len(other):
-            raise ValueError(str(self)+' and '+str(other)+' should have the same length')
+            raise ValueError(str(self)+' and '+str(other)+' must have the same length')
         if not np.allclose(self._time, other._time):
             raise ValueError(str(self)+' and '+str(other)+' must have the same time points')
         return ArrayTimeSeries(self._value + other._value, self._time)
@@ -99,7 +99,7 @@ class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
         if not isinstance(other, ArrayTimeSeries):
             raise TypeError("NotImplemented Error")
         if len(self) != len(other):
-            raise ValueError(str(self)+' and '+str(other)+' should have the same length')
+            raise ValueError(str(self)+' and '+str(other)+' must have the same length')
         if not np.allclose(self._time, other._time):
             raise ValueError(str(self)+' and '+str(other)+' must have the same time points')
         return ArrayTimeSeries(self._value - other._value, self._time)
@@ -116,7 +116,7 @@ class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
         if not isinstance(other, ArrayTimeSeries):
             raise TypeError("NotImplemented Error")
         if len(self) != len(other):
-            raise ValueError(str(self)+' and '+str(other)+' should have the same length')
+            raise ValueError(str(self)+' and '+str(other)+' must have the same length')
         if not np.allclose(self._time, other._time):
             raise ValueError(str(self)+' and '+str(other)+' must have the same time points')
         return ArrayTimeSeries(self._value * other._value, self._time)
@@ -165,15 +165,19 @@ class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
         Interpolate new time points from time_seq, the corresponding value is calculated on the assumption
         that the values follow a piecewise-linear function
 
+        Input must be a Python sequence
+
         Return an ArrayTimeSeries instance with time_seq as times and interpolated values as values
-        """  
+        """
+        if not isinstance(time_seq, collections.Sequence):
+            raise TypeError("Input must be Sequence")
         value_seq = []
         for i_t in time_seq:
             if i_t < self._time[0]:
-                value_seq.append(self._time[0])
+                value_seq.append(self._value[0])
                 continue
             if i_t > self._time[len(self._time) - 1]:
-                value_seq.append(self._time[len(self._time) - 1])
+                value_seq.append(self._value[len(self._value) - 1])
                 continue
             for i in range(len(self._time) - 1):
                 if i_t >= self._time[i] and i_t <= self._time[i + 1]:
