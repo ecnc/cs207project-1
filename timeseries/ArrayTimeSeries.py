@@ -165,14 +165,15 @@ class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
         Interpolate new time points from time_seq, the corresponding value is calculated on the assumption
         that the values follow a piecewise-linear function
 
-        Input must be a Python sequence
+        Input could be a Python sequence or a sequence generator
 
         Return an ArrayTimeSeries instance with time_seq as times and interpolated values as values
         """
-        if not isinstance(time_seq, collections.Sequence):
-            raise TypeError("Input must be Sequence")
+        if not isinstance(time_seq, collections.Sequence) and not isinstance(time_seq, collections.Iterable):
+            raise TypeError("Input values must be Sequence or generator")
+        local_times_seq = list(time_seq)
         value_seq = []
-        for i_t in time_seq:
+        for i_t in local_times_seq:
             if i_t < self._time[0]:
                 value_seq.append(self._value[0])
                 continue
@@ -187,7 +188,7 @@ class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
                     new_v = slop * (i_t - self._time[i]) + self._value[i]
                     value_seq.append(new_v)
                     break
-        return ArrayTimeSeries(value_seq, time_seq)
+        return ArrayTimeSeries(value_seq, local_times_seq)
 
     @property
     def lazy(self):

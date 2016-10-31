@@ -158,14 +158,17 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
         Interpolate new time points from time_seq, the corresponding value is calculated on the assumption
         that the values follow a piecewise-linear function
 
-        Input must be a Python sequence
+        Input must be a Python sequence or a sequence generator
 
         Return a TimeSeries instance with time_seq as times and interpolated values as values
         """
-        if not isinstance(time_seq, collections.Sequence):
-            raise TypeError("Input must be Sequence")
+        #if not isinstance(time_seq, collections.Sequence):
+        #    raise TypeError("Input must be Sequence")
+        if not isinstance(time_seq, collections.Sequence) and not isinstance(time_seq, collections.Iterable):
+            raise TypeError("Input values must be Sequence or generator")
         value_seq = []
-        for i_t in time_seq:
+        local_times_seq = list(time_seq)
+        for i_t in local_times_seq:
             if i_t < self._time[0]:
                 value_seq.append(self._value[0])
                 continue
@@ -180,7 +183,7 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
                     new_v = slop * (i_t - self._time[i]) + self._value[i]
                     value_seq.append(new_v)
                     break
-        return TimeSeries(value_seq, time_seq)
+        return TimeSeries(value_seq, local_times_seq)
 
     @property
     def lazy(self):
@@ -192,5 +195,3 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
 @lazy
 def check_length(a, b):
     return len(a) == len(b)
-
-

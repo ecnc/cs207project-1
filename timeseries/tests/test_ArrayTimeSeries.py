@@ -1,5 +1,5 @@
 import numpy as np
-from ArrayTimeSeries import *
+from ArrayTimeSeries import ArrayTimeSeries, check_length, LazyOperation
 from pytest import raises
 
 """
@@ -162,6 +162,7 @@ def test_pos():
 #test interpolate with valid parameters
 def test_valid_input_interpolate():
     ts_1 = ArrayTimeSeries([1,2,3], [0,5,10])
+    ts_2 = ArrayTimeSeries([100, -100], [2.5, 7.5])
     ts_interpolate_test_1 = ts_1.interpolate([1])
     assert ts_interpolate_test_1._value == [1.2]
     assert ts_interpolate_test_1._time == [1]
@@ -172,12 +173,13 @@ def test_valid_input_interpolate():
     ts_interpolate_test_3 = ts_1.interpolate([2.5, 7.5])
     assert ts_interpolate_test_3 == ArrayTimeSeries([1.5, 2.5], [2.5, 7.5])
 
+    assert ts_1.interpolate(ts_2.itertimes()) == ArrayTimeSeries([1.5, 2.5], [2.5, 7.5])
+
 #test interpolate with invalid parameters
 def test_invalid_input_interpolate():
     ts_1 = ArrayTimeSeries([1, 2, 3], [0, 5, 10])
-    ts_2 = ArrayTimeSeries([100, -100], [2.5, 7.5])
     with raises(TypeError):
-        ts_1.interpolate(ts_2.itertimes())
+        ts_1.interpolate(1)
 
 #test lazy
 def test_lazy_in_TS_class():
@@ -193,13 +195,3 @@ def test_lazy_check_length():
     thunk = check_length(l1,l2)
     assert isinstance(thunk, LazyOperation) == True
     assert thunk.eval() == True;
-
-"""
-def test_repr():
-    ts = ArrayTimeSeries(list(range(10)), list(range(1, 11)))
-    assert repr(ts) == "TimeSeries(Length: 10, [[0 1], [1 2], ..., [9 10]])"
-
-def test_str():
-    ts = ArrayTimeSeries(list(range(10)), list(range(1, 11)))
-    assert str(ts) == "Length: 10, [[0 1], [1 2], ..., [9 10]]"
-"""

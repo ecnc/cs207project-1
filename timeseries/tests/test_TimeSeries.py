@@ -160,6 +160,7 @@ def test_pos():
 #test interpolate with valid parameters
 def test_valid_input_interpolate():
     ts_1 = TimeSeries([1,2,3], [0,5,10])
+    ts_2 = TimeSeries([100, -100], [2.5, 7.5])
     ts_interpolate_test_1 = ts_1.interpolate([1])
     assert ts_interpolate_test_1._value == [1.2]
     assert ts_interpolate_test_1._time == [1]
@@ -170,12 +171,13 @@ def test_valid_input_interpolate():
     ts_interpolate_test_3 = ts_1.interpolate([2.5, 7.5])
     assert ts_interpolate_test_3 == TimeSeries([1.5, 2.5], [2.5, 7.5])
 
+    assert ts_1.interpolate(ts_2.itertimes()) == TimeSeries([1.5, 2.5], [2.5, 7.5])
+
+
 #test interpolate with invalid parameters
 def test_invalid_input_interpolate():
     ts_1 = TimeSeries([1, 2, 3], [0, 5, 10])
-    ts_2 = TimeSeries([100, -100], [2.5, 7.5])
-    with raises(TypeError):
-        ts_1.interpolate(ts_2.itertimes())
+
     with raises(TypeError):
         ts_1.interpolate(1)
 
