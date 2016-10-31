@@ -12,22 +12,22 @@ TODO:
 
 """
 def test_valid_input():
-    ts = ArrayTimeSeries([1, 2],[3, 4])
+    ts = ArrayTimeSeries([3, 4], [1, 2])
     assert np.all(ts._value == [3, 4]) == True
     assert np.all(ts._time == [1, 2]) == True
 
 def test_len():
-    ts = ArrayTimeSeries([1,2],[3,4])
+    ts = ArrayTimeSeries([3, 4], [1, 2])
     assert len(ts) == 2
 
 def test_getitem():
-    ts = ArrayTimeSeries([1, 2], [3, 4])
-    assert np.all(ts[1] == (2, 4)) == True
+    ts = ArrayTimeSeries([3, 4], [1, 2])
+    assert np.all(ts[1] == (4, 2)) == True
 
 def test_setitem():
-    ts = ArrayTimeSeries([1, 2], [3, 4])
+    ts = ArrayTimeSeries([3, 4], [1, 2])
     ts[0] = 10
-    assert np.all(ts[0] == (1, 10)) == True
+    assert np.all(ts[0] == (10, 1)) == True
 """
 def test_repr():
     ts = ArrayTimeSeries(list(range(10)), list(range(1, 11)))
@@ -39,51 +39,51 @@ def test_str():
 """
 
 def test_contains():
-    ts = ArrayTimeSeries(list(range(1, 11)), list(range(10)))
+    ts = ArrayTimeSeries(list(range(10)), list(range(1, 11)))
     assert (0 in ts) == True
 
 def test_add():
-    ts_1 = ArrayTimeSeries([1, 2], [3, 4])
-    ts_2 = ArrayTimeSeries([1, 2], [3, 4])
+    ts_1 = ArrayTimeSeries([3, 4], [1, 2])
+    ts_2 = ArrayTimeSeries([3, 4], [1, 2])
     ts_sum = ts_1 + ts_2
     assert np.all(ts_sum._value == [6, 8]) == True
-    assert ts_sum == ArrayTimeSeries([1, 2], [6, 8])
+    assert ts_sum == ArrayTimeSeries([6, 8], [1, 2])
 
 def test_sub():
-    ts_1 = ArrayTimeSeries([1, 2], [3, 4])
-    ts_2 = ArrayTimeSeries([1, 2], [3, 4])
+    ts_1 = ArrayTimeSeries([3, 4], [1, 2])
+    ts_2 = ArrayTimeSeries([3, 4], [1, 2])
     ts_sub = ts_1 - ts_2
-    assert ts_sub == ArrayTimeSeries([1, 2], [0, 0])
+    assert ts_sub == ArrayTimeSeries([0, 0], [1, 2])
 
 def test_abs():
     ts = ArrayTimeSeries([3, 4], [3, 4])
     assert abs(ts) == 5
 
 def test_bool():
-    ts = ArrayTimeSeries([2, 2], [3, 4])
+    ts = ArrayTimeSeries([3, 4], [2, 2])
     assert bool(ts) == True
 
 def test_neg():
-    ts = ArrayTimeSeries([2, 2], [3, 4])
-    assert np.all(-ts == ArrayTimeSeries([2, 2], [-3, -4])) == True
+    ts = ArrayTimeSeries([3, 4], [2, 2])
+    assert np.all(-ts == ArrayTimeSeries([-3, -4], [2, 2])) == True
 
 def test_interpolate():
-    ts_1 = ArrayTimeSeries([0,5,10], [1,2,3])
-    ts_2 = ArrayTimeSeries([2.5,7.5], [100, -100])
+    ts_1 = ArrayTimeSeries([1, 2, 3], [0, 5, 10])
+    ts_2 = ArrayTimeSeries([100, -100], [2.5, 7.5])
     ts_interpolate = ts_1.interpolate([1])
     assert ts_interpolate._value == [1.2]
     assert ts_interpolate._time == [1]
 
 
 def test_lazy_in_TS_class():
-    ts = ArrayTimeSeries([1,2],[3,4])
+    ts = ArrayTimeSeries([3, 4], [1, 2])
     thunk = ts.lazy
     assert isinstance(thunk, LazyOperation) == True
     assert thunk.eval() == ts
 
 def test_lazy_check_length():
-    l1 = ArrayTimeSeries(range(0,3), range(1,4))
-    l2 = ArrayTimeSeries(range(1,4), range(2,5))
+    l1 = ArrayTimeSeries(range(1, 4), range(0, 3))
+    l2 = ArrayTimeSeries(range(2, 5), range(1, 4))
     thunk = check_length(l1,l2)
     assert isinstance(thunk, LazyOperation) == True
     assert thunk.eval() == True;

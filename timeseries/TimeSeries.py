@@ -1,4 +1,5 @@
 import reprlib
+import numbers
 import collections
 import math
 import numpy as np
@@ -7,96 +8,160 @@ from Interface import SizedContainerTimeSeriesInterface
 
 class TimeSeries(SizedContainerTimeSeriesInterface):
     """
-    A class with a list of time points and a list of values.
+    A time series class that implements SizedContainerTimeSeriesInterface, with times and values stored in
+    two seperate lists.
 
-    TODO:
-    1. add test cases;
-    2. add lazy function;
+    The times and values should be numbers. It implements basic unary functions 
+    abs, bool, neg, pos, and binary functions add, sub, mul, eq, and interpolate function.
 
-    Parameters
-    ----------
-    value :
-        a list of values
-    time:
-        a list of times
-
-    Methods
-    -------
-    __init__(values, times = None):
-        return the length of this sequence
-    __getitem__(index):
-        return the item wiht key equals to index
-    __repr__():
-        return the representation of this sequence
-    __iter__():
-        iterator of the value of timeseries
-    itervalues():
-        iterator of the timeseries value
-    itertimes():
-        interator of the timeseries times
-    iteritems():
-        interator of the timeseries times and value pairs
-    interpolate(stime_seq)
-        return a timeseries sequence with interpolated value calculated by the input times sequence
-
-    Examples
-    --------
+    >>> A=TimeSeries([3,4],[1,2])
+    >>> B=TimeSeries([5,6],[1,2])
+    >>> A+B
+    TimeSeries([(1, 8), (2, 10)]), length=2
+    >>> A-B
+    TimeSeries([(1, -2), (2, -2)]), length=2
+    >>> A==B
+    False
+    >>> -A
+    TimeSeries([(1, -3), (2, -4)]), length=2
+    >>> abs(A)
+    5.0
+    >>> A.interpolate([1.2])
+    TimeSeries([(1.2, 3.2)]), length=1
+  
     """
 
     def __init__(self, values, times=None):
+        """
+        Initialize a TimeSeries instance, inherited from SizedContainerTimeSeriesInterface
+        self._time: store the times. The default times are the indexes of the values list.
+        self._value: store the values
+        self._timeseries: time and value tuple, i.e., zip(_time, _value)
+        """
+        if not isinstance(values, collections.Sequence):
+            raise TypeError("Input values should be Sequence")
         if times:
+            if not isinstance(times, collections.Sequence):
+                raise TypeError("Input times should be Sequence")
+            if len(times) != len(values):
+                raise ValueError("Input values sequence and times sequence should have the same length")
             self._time = list(times)
         else:
             self._time = list(range(len(values)))
         self._value = list(values)
         self._timeseries = list(zip(self._time, self._value))
-        self._dict = {}
 
     def __setitem__(self, index, value):
+        """
+        Set the value at the index time by value
+
+        Raise "LookupError" when the index is out of boundary,
+        and raise "TypeError" when the value is of illegal type
+        """
+        if not isinstance(index, numbers.Integral):
+            raise TypeError("Input index should be integer")
+        if index >= len(self._value):
+            raise ValueError("Input index should not larger than the length of value sequence")
         self._value[index] = value
         self._timeseries[index] = (self._time[index], value)
 
     def __add__(self, other):
+        """ 
+        Add two timeseries' values at each time point
+
+        other: another TimeSeries instance
+        Return a new TimeSeries instance 
+        Raise "TypeError" when other is not an instance of TimeSeries class,
+        and raise "ValueError" when self and other doesn't have exactly same time list
+        """ 
         if not isinstance(other, TimeSeries):
             raise TypeError("NotImplemented Error")
-        if len(self) != len(other) or self._time != other._time:
+        if len(self) != len(other):
+            raise ValueError(str(self)+' and '+str(other)+' should have the same length')
+        if self._time != other._time:
             raise ValueError(str(self)+' and '+str(other)+' must have the same time points')
         return TimeSeries(list(map(lambda x: x[0] + x[1], zip(self._value, other._value))), self._time)
 
     def __sub__(self, other):
+        """ 
+        Subtract by other's value at each time point
+
+        other: another TimeSeries instance
+        Return a new TimeSeries instance 
+        Raise "TypeError" when other is not an instance of TimeSeries class,
+        and raise "ValueError" when self and other doesn't have exactly same time list
+        """ 
         if not isinstance(other, TimeSeries):
             raise TypeError("NotImplemented Error")
-        if len(self) != len(other) or self._time != other._time:
+        if len(self) != len(other):
+            raise ValueError(str(self)+' and '+str(other)+' should have the same length')
+        if self._time != other._time:
             raise ValueError(str(self) + ' and ' + str(other) + ' must have the same time points')
         return TimeSeries(list(map(lambda x: x[0] - x[1], zip(self._value, other._value))), self._time)
 
     def __mul__(self, other):
+        """ 
+        Multiply by other's value at each time point
+
+        other: another TimeSeries instance
+        Return a new TimeSeries instance 
+        Raise "TypeError" when other is not an instance of TimeSeries class,
+        and raise "ValueError" when self and other doesn't have exactly same time list
+        """ 
         if not isinstance(other, TimeSeries):
             raise TypeError("NotImplemented Error")
-        if len(self) != len(other) or self._time != other._time:
+        if len(self) != len(other):
+            raise ValueError(str(self)+' and '+str(other)+' should have the same length')
+        if self._time != other._time:
             raise ValueError(str(self) + ' and ' + str(other) + ' must have the same time points')
         return TimeSeries(list(map(lambda x: x[0] * x[1]), zip(self._value, other._value)), self._time)
 
     def __eq__(self, other):
+        """ 
+        Check if two TimeSeries instance are equal
+
+        other: another TimeSeries instance
+        Return true when they are equal, false otherwise 
+        Raise "TypeError" when other is not an instance of TimeSeries class,
+        and raise "ValueError" when self and other doesn't have exactly same time list
+        """ 
         if not isinstance(other, TimeSeries):
             raise TypeError("NotImplemented Error")
-        if len(self) != len(other) or self._time != other._time:
-            raise ValueError(str(self) + ' and ' + str(other) + ' must have the same time points')
+        if len(self) != len(other):
+            raise ValueError(str(self) + ' and ' + str(other) + ' must have the same length')
         return self._value == other._value and self._time == other._time
 
     def __abs__(self):
+        """ 
+        Return the L^2 norm of values(the root square of the sum of the squared values)
+        """ 
         return math.sqrt(sum(x * x for x in self._value))
 
     def __bool__(self):
+        """ 
+        Return true if the L^2 norm of values is non-zero, false if it's zero
+        """ 
         return bool(abs(self))
 
     def __neg__(self):
+        """ 
+        Return a new Timeseries instance with the opposite number of value at each time point
+        """ 
         return TimeSeries([-v for v in self._value], self._time)
 
     def __pos__(self):
+        """ 
+        Return a new Timeseries instance with the same value at each time point
+        """ 
         return TimeSeries(self._value, self._time)
 
     def interpolate(self, time_seq):
+        """ 
+        Interpolate new time points from time_seq, the corresponding value is calculated on the assumption
+        that the values follow a piecewise-linear function
+
+        Return a TimeSeries instance with time_seq as times and interpolated values as values
+        """         
         value_seq = []
         for i_t in time_seq:
             if i_t < self._time[0]:
@@ -125,3 +190,6 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
 @lazy
 def check_length(a, b):
     return len(a) == len(b)
+
+ts = TimeSeries([1, 2], [1, 2])
+
