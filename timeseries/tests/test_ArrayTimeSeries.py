@@ -29,6 +29,8 @@ def test_invalid_input():
         ArrayTimeSeries(1, 2)
     with raises(TypeError):
         ArrayTimeSeries(1, [1])
+    with raises(TypeError):
+        ArrayTimeSeries([1, 2], 3)
 
 #test len
 def test_len():
@@ -42,13 +44,13 @@ def test_getitem():
 
 #test setitem with valid parameters
 def test_valid_input_setitem():
-    ts = TimeSeries([1, 2], [3, 4])
+    ts = ArrayTimeSeries([1, 2], [3, 4])
     ts[0] = 10
-    assert np.all(ts[0] == (3, 10)) == True
+    assert np.all(ts[0] == (10, 3)) == True
 
 #test setitem with invalid parameters
 def test_invalid_input_setitem():
-    ts = TimeSeries([1, 2], [3, 4])
+    ts = ArrayTimeSeries([1, 2], [3, 4])
     with raises(ValueError):
         ts[3] = 10
     with raises(TypeError):
@@ -71,11 +73,14 @@ def test_valid_input_add():
 def test_invalid_input_add():
     ts_1 = ArrayTimeSeries([1, 2], [3, 4])
     ts_2 = ArrayTimeSeries([1, 2, 3], [3, 4, 5])
+    ts_3 = ArrayTimeSeries([2, 3], [5, 6])
     arry = [1, 2]
     with raises(ValueError):
         ts_sum = ts_1 + ts_2
     with raises(TypeError):
         ts_sum = ts_1 + arry
+    with raises(ValueError):
+        ts_sum = ts_1 + ts_3
 
 #test sub with valid parameters
 def test_valid_input_sub():
@@ -88,11 +93,14 @@ def test_valid_input_sub():
 def test_invalid_input_sub():
     ts_1 = ArrayTimeSeries([1, 2], [3, 4])
     ts_2 = ArrayTimeSeries([1, 2, 3], [3, 4, 5])
+    ts_3 = ArrayTimeSeries([2, 3], [5, 6])
     arry = [1, 2]
     with raises(ValueError):
         ts_sum = ts_1 - ts_2
     with raises(TypeError):
         ts_sum = ts_1 - arry
+    with raises(ValueError):
+        ts_sum = ts_1 - ts_3
 
 #test mul with valid parameters
 def test_valid_input_mul():
@@ -105,11 +113,14 @@ def test_valid_input_mul():
 def test_invalid_input_mul():
     ts_1 = ArrayTimeSeries([1, 2], [3, 4])
     ts_2 = ArrayTimeSeries([1, 2, 3], [3, 4, 5])
+    ts_3 = ArrayTimeSeries([2, 3], [5, 6])
     arry = [1, 2]
     with raises(ValueError):
         ts_sum = ts_1 * ts_2
     with raises(TypeError):
         ts_sum = ts_1 * arry
+    with raises(ValueError):
+        ts_sum = ts_1 * ts_3
 
 #test eq with valid parameters
 def test_valid_input_eq():

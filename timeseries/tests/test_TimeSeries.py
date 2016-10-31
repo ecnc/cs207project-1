@@ -28,6 +28,8 @@ def test_invalid_input():
         TimeSeries(1, 2)
     with raises(TypeError):
         TimeSeries(1, [1])
+    with raises(TypeError):
+        TimeSeries([1, 2], 3)
 
 #test len
 def test_len():
@@ -69,11 +71,14 @@ def test_valid_input_add():
 def test_invalid_input_add():
     ts_1 = TimeSeries([1, 2], [3, 4])
     ts_2 = TimeSeries([1, 2, 3], [3, 4, 5])
+    ts_3 = TimeSeries([2, 3], [5, 6])
     arry = [1, 2]
     with raises(ValueError):
         ts_sum = ts_1 + ts_2
     with raises(TypeError):
         ts_sum = ts_1 + arry
+    with raises(ValueError):
+        ts_sum = ts_1 + ts_3
 
 #test sub with valid parameters
 def test_valid_input_sub():
@@ -86,11 +91,14 @@ def test_valid_input_sub():
 def test_invalid_input_sub():
     ts_1 = TimeSeries([1, 2], [3, 4])
     ts_2 = TimeSeries([1, 2, 3], [3, 4, 5])
+    ts_3 = TimeSeries([2, 3], [5, 6])
     arry = [1, 2]
     with raises(ValueError):
         ts_sum = ts_1 - ts_2
     with raises(TypeError):
         ts_sum = ts_1 - arry
+    with raises(ValueError):
+        ts_sum = ts_1 - ts_3
 
 #test mul with valid parameters
 def test_valid_input_mul():
@@ -103,11 +111,14 @@ def test_valid_input_mul():
 def test_invalid_input_mul():
     ts_1 = TimeSeries([1, 2], [3, 4])
     ts_2 = TimeSeries([1, 2, 3], [3, 4, 5])
+    ts_3 = TimeSeries([2, 3], [5, 6])
     arry = [1, 2]
     with raises(ValueError):
         ts_sum = ts_1 * ts_2
     with raises(TypeError):
         ts_sum = ts_1 * arry
+    with raises(ValueError):
+        ts_sum = ts_1 * ts_3
 
 #test eq with valid parameters
 def test_valid_input_eq():
