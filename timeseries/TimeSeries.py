@@ -14,16 +14,16 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
     The times and values should be numbers. It implements basic unary functions 
     abs, bool, neg, pos, and binary functions add, sub, mul, eq, and interpolate function.
 
-    >>> A=TimeSeries([3,4],[1,2])
-    >>> B=TimeSeries([5,6],[1,2])
-    >>> A+B
-    TimeSeries([(1, 8), (2, 10)]), length=2
-    >>> A-B
-    TimeSeries([(1, -2), (2, -2)]), length=2
-    >>> A==B
+    >>> A = TimeSeries([3, 4], [1, 2])
+    >>> B = TimeSeries([5, 6],[1, 2])
+    >>> A + B
+    TimeSeries([(8, 1), (10, 2)]), length=2
+    >>> A - B
+    TimeSeries([(-2, 1), (-2, 2)]), length=2
+    >>> A == B
     False
     >>> -A
-    TimeSeries([(1, -3), (2, -4)]), length=2
+    TimeSeries([(-3, 1), (-4, 2)]), length=2
     >>> abs(A)
     5.0
   
@@ -47,7 +47,7 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
         else:
             self._time = list(range(len(values)))
         self._value = list(values)
-        self._timeseries = list(zip(self._time, self._value))
+        self._timeseries = list(zip(self._value, self._time))
 
     def __setitem__(self, index, value):
         """
@@ -61,7 +61,7 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
         if index >= len(self._value):
             raise ValueError("Input index is out of boundary")
         self._value[index] = value
-        self._timeseries[index] = (self._time[index], value)
+        self._timeseries[index] = (value, self._time[index])
 
     def __add__(self, other):
         """ 

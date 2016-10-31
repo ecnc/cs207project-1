@@ -39,13 +39,13 @@ def test_len():
 #test getitem
 def test_getitem():
     ts = TimeSeries([1, 2], [3, 4])
-    assert ts[1] == (4, 2)
+    assert ts[1] == (2, 4)
 
 #test setitem with valid parameters
 def test_valid_input_setitem():
     ts = TimeSeries([1, 2], [3, 4])
     ts[0] = 10
-    assert ts[0] == (3, 10)
+    assert ts[0] == (10, 3)
 
 #test setitem with invalid parameters
 def test_invalid_input_setitem():
