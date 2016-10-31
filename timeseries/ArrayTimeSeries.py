@@ -1,4 +1,5 @@
 import numpy as np
+import numbers
 import reprlib
 import collections
 import math
@@ -31,7 +32,7 @@ class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
     ArrayTimeSeries([array([ 3.2,  1.2])]), length=1
   
     """
-    def __init__(self, values, times):
+    def __init__(self, values, times = None):
         """
         Initialize a ArrayTimeSeries instance, inherited from SizedContainerTimeSeriesInterface
 
@@ -40,7 +41,16 @@ class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
         self._value: store the values in a n*1 numpy array
         self._timeseries: a n*2 numpy array with the times as the first column and values as the second column
         """
-        self._time = np.array(times)
+        if not isinstance(values, collections.Sequence) and not isinstance(values, np.ndarray):
+            raise TypeError("Input values should be Sequence")
+        if times is not None:
+            if not isinstance(times, collections.Sequence) and not isinstance(values, np.ndarray):
+                raise TypeError("Input times should be Sequence")
+            if len(times) != len(values):
+                raise ValueError("Input values sequence and times sequence should have the same length")
+            self._time = np.array(times)
+        else:
+            self._time = np.array(list(range(len(values))))
         self._value = np.array(values)
         self._timeseries = np.array(list(zip(self._value, self._time)))
 
@@ -52,6 +62,10 @@ class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
         Raise "LookupError" when the index is out of boundary,
         and raise "TypeError" when the value is of illegal type
         """
+        if not isinstance(index, numbers.Integral):
+            raise TypeError("Input index should be integer")
+        if index >= len(self._value):
+            raise ValueError("Input index should not larger than the length of value sequence")
         self._value[index] = value
         self._timeseries[index][0] = value
 
@@ -66,7 +80,9 @@ class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
         """ 
         if not isinstance(other, ArrayTimeSeries):
             raise TypeError("NotImplemented Error")
-        if len(self) != len(other) or not np.allclose(self._time, other._time):
+        if len(self) != len(other):
+            raise ValueError(str(self)+' and '+str(other)+' should have the same length')
+        if not np.allclose(self._time, other._time):
             raise ValueError(str(self)+' and '+str(other)+' must have the same time points')
         return ArrayTimeSeries(self._value + other._value, self._time)
 
@@ -82,8 +98,10 @@ class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
         """ 
         if not isinstance(other, ArrayTimeSeries):
             raise TypeError("NotImplemented Error")
-        if len(self) != len(other) or not np.allclose(self._time, other._time):
-            raise ValueError(str(self) + ' and ' + str(other) + ' must have the same time points')
+        if len(self) != len(other):
+            raise ValueError(str(self)+' and '+str(other)+' should have the same length')
+        if not np.allclose(self._time, other._time):
+            raise ValueError(str(self)+' and '+str(other)+' must have the same time points')
         return ArrayTimeSeries(self._value - other._value, self._time)
 
     def __mul__(self, other):
@@ -97,8 +115,10 @@ class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
         """ 
         if not isinstance(other, ArrayTimeSeries):
             raise TypeError("NotImplemented Error")
-        if len(self) != len(other) or not np.allclose(self._time, other._time):
-            raise ValueError(str(self) + ' and ' + str(other) + ' must have the same time points')
+        if len(self) != len(other):
+            raise ValueError(str(self)+' and '+str(other)+' should have the same length')
+        if not np.allclose(self._time, other._time):
+            raise ValueError(str(self)+' and '+str(other)+' must have the same time points')
         return ArrayTimeSeries(self._value * other._value, self._time)
 
     def __eq__(self, other):
@@ -112,8 +132,8 @@ class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
         """ 
         if not isinstance(other, ArrayTimeSeries):
             raise TypeError("NotImplemented Error")
-        if len(self) != len(other) or not np.allclose(self._time, other._time):
-            raise ValueError(str(self) + ' and ' + str(other) + ' must have the same time points')
+        if len(self) != len(other):
+            raise ValueError(str(self) + ' and ' + str(other) + ' must have the same length')
         return np.all(self._value == other._value) == True and np.allclose(self._time, other._time)
 
     def __abs__(self):

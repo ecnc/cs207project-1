@@ -1,5 +1,4 @@
-from TimeSeries import *
-from ArrayTimeSeries import ArrayTimeSeries
+from TimeSeries import TimeSeries, check_length, LazyOperation
 from pytest import raises
 
 """
@@ -9,10 +8,23 @@ TODO:
 1. add more testcases;
 
 """
-def test_valid_input():
-    ts = TimeSeries([1,2],[3,4])
-    assert ts._value == [1,2]
-    assert ts._time == [3,4]
+def test_valid_full_input():
+    ts = TimeSeries([1, 2], [3, 4])
+    assert ts._value == [1, 2]
+    assert ts._time == [3, 4]
+
+def test_valid_non_times_input():
+    ts = TimeSeries([1, 2])
+    assert ts._value == [1, 2]
+    assert ts._time == [0, 1]
+
+def test_invalid_input():
+    with raises(ValueError):
+        TimeSeries([1, 2], [3, 4, 5])
+    with raises(TypeError):
+        TimeSeries(1, 2)
+    with raises(TypeError):
+        TimeSeries(1, [1])
 
 def test_len():
     ts = TimeSeries([1,2],[3,4])
@@ -22,10 +34,17 @@ def test_getitem():
     ts = TimeSeries([1, 2], [3, 4])
     assert ts[1] == (4, 2)
 
-def test_setitem():
+def test_valid_input_setitem():
     ts = TimeSeries([1, 2], [3, 4])
     ts[0] = 10
     assert ts[0] == (3, 10)
+
+def test_invalid_input_setitem():
+    ts = TimeSeries([1, 2], [3, 4])
+    with raises(ValueError):
+        ts[3] = 10
+    with raises(TypeError):
+        ts[{1}] = 10
 
 def test_contains():
     ts = TimeSeries(list(range(10)), list(range(1, 11)))

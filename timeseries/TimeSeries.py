@@ -1,4 +1,5 @@
 import reprlib
+import numbers
 import collections
 import math
 import numpy as np
@@ -37,7 +38,13 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
         self._value: store the values
         self._timeseries: time and value tuple, i.e., zip(_time, _value)
         """
+        if not isinstance(values, collections.Sequence):
+            raise TypeError("Input values should be Sequence")
         if times:
+            if not isinstance(times, collections.Sequence):
+                raise TypeError("Input times should be Sequence")
+            if len(times) != len(values):
+                raise ValueError("Input values sequence and times sequence should have the same length")
             self._time = list(times)
         else:
             self._time = list(range(len(values)))
@@ -51,6 +58,10 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
         Raise "LookupError" when the index is out of boundary,
         and raise "TypeError" when the value is of illegal type
         """
+        if not isinstance(index, numbers.Integral):
+            raise TypeError("Input index should be integer")
+        if index >= len(self._value):
+            raise ValueError("Input index should not larger than the length of value sequence")
         self._value[index] = value
         self._timeseries[index] = (self._time[index], value)
 
@@ -65,7 +76,9 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
         """ 
         if not isinstance(other, TimeSeries):
             raise TypeError("NotImplemented Error")
-        if len(self) != len(other) or self._time != other._time:
+        if len(self) != len(other):
+            raise ValueError(str(self)+' and '+str(other)+' should have the same length')
+        if self._time != other._time:
             raise ValueError(str(self)+' and '+str(other)+' must have the same time points')
         return TimeSeries(list(map(lambda x: x[0] + x[1], zip(self._value, other._value))), self._time)
 
@@ -80,7 +93,9 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
         """ 
         if not isinstance(other, TimeSeries):
             raise TypeError("NotImplemented Error")
-        if len(self) != len(other) or self._time != other._time:
+        if len(self) != len(other):
+            raise ValueError(str(self)+' and '+str(other)+' should have the same length')
+        if self._time != other._time:
             raise ValueError(str(self) + ' and ' + str(other) + ' must have the same time points')
         return TimeSeries(list(map(lambda x: x[0] - x[1], zip(self._value, other._value))), self._time)
 
@@ -95,7 +110,9 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
         """ 
         if not isinstance(other, TimeSeries):
             raise TypeError("NotImplemented Error")
-        if len(self) != len(other) or self._time != other._time:
+        if len(self) != len(other):
+            raise ValueError(str(self)+' and '+str(other)+' should have the same length')
+        if self._time != other._time:
             raise ValueError(str(self) + ' and ' + str(other) + ' must have the same time points')
         return TimeSeries(list(map(lambda x: x[0] * x[1]), zip(self._value, other._value)), self._time)
 
@@ -110,8 +127,8 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
         """ 
         if not isinstance(other, TimeSeries):
             raise TypeError("NotImplemented Error")
-        if len(self) != len(other) or self._time != other._time:
-            raise ValueError(str(self) + ' and ' + str(other) + ' must have the same time points')
+        if len(self) != len(other):
+            raise ValueError(str(self) + ' and ' + str(other) + ' must have the same length')
         return self._value == other._value and self._time == other._time
 
     def __abs__(self):
@@ -173,3 +190,6 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
 @lazy
 def check_length(a, b):
     return len(a) == len(b)
+
+ts = TimeSeries([1, 2], [1, 2])
+
