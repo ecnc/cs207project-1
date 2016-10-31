@@ -26,8 +26,6 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
     TimeSeries([(1, -3), (2, -4)]), length=2
     >>> abs(A)
     5.0
-    >>> A.interpolate([1.2])
-    TimeSeries([(1.2, 3.2)]), length=1
   
     """
 
@@ -39,12 +37,12 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
         self._timeseries: time and value tuple, i.e., zip(_time, _value)
         """
         if not isinstance(values, collections.Sequence):
-            raise TypeError("Input values should be Sequence")
-        if times:
+            raise TypeError("Input values must be Sequence")
+        if times is not None:
             if not isinstance(times, collections.Sequence):
-                raise TypeError("Input times should be Sequence")
+                raise TypeError("Input times must be Sequence")
             if len(times) != len(values):
-                raise ValueError("Input values sequence and times sequence should have the same length")
+                raise ValueError("Input values sequence and times sequence must have the same length")
             self._time = list(times)
         else:
             self._time = list(range(len(values)))
@@ -59,9 +57,9 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
         and raise "TypeError" when the value is of illegal type
         """
         if not isinstance(index, numbers.Integral):
-            raise TypeError("Input index should be integer")
+            raise TypeError("Input index must be integer")
         if index >= len(self._value):
-            raise ValueError("Input index should not larger than the length of value sequence")
+            raise ValueError("Input index is out of boundary")
         self._value[index] = value
         self._timeseries[index] = (self._time[index], value)
 
@@ -77,7 +75,7 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
         if not isinstance(other, TimeSeries):
             raise TypeError("NotImplemented Error")
         if len(self) != len(other):
-            raise ValueError(str(self)+' and '+str(other)+' should have the same length')
+            raise ValueError(str(self)+' and '+str(other)+' must have the same length')
         if self._time != other._time:
             raise ValueError(str(self)+' and '+str(other)+' must have the same time points')
         return TimeSeries(list(map(lambda x: x[0] + x[1], zip(self._value, other._value))), self._time)
@@ -94,7 +92,7 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
         if not isinstance(other, TimeSeries):
             raise TypeError("NotImplemented Error")
         if len(self) != len(other):
-            raise ValueError(str(self)+' and '+str(other)+' should have the same length')
+            raise ValueError(str(self)+' and '+str(other)+' must have the same length')
         if self._time != other._time:
             raise ValueError(str(self) + ' and ' + str(other) + ' must have the same time points')
         return TimeSeries(list(map(lambda x: x[0] - x[1], zip(self._value, other._value))), self._time)
@@ -111,10 +109,10 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
         if not isinstance(other, TimeSeries):
             raise TypeError("NotImplemented Error")
         if len(self) != len(other):
-            raise ValueError(str(self)+' and '+str(other)+' should have the same length')
+            raise ValueError(str(self)+' and '+str(other)+' must have the same length')
         if self._time != other._time:
             raise ValueError(str(self) + ' and ' + str(other) + ' must have the same time points')
-        return TimeSeries(list(map(lambda x: x[0] * x[1]), zip(self._value, other._value)), self._time)
+        return TimeSeries(list(map(lambda x: x[0] * x[1], zip(self._value, other._value))), self._time)
 
     def __eq__(self, other):
         """ 
@@ -160,18 +158,22 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
         Interpolate new time points from time_seq, the corresponding value is calculated on the assumption
         that the values follow a piecewise-linear function
 
+        Input must be a Python sequence
+
         Return a TimeSeries instance with time_seq as times and interpolated values as values
-        """         
+        """
+        if not isinstance(time_seq, collections.Sequence):
+            raise TypeError("Input must be Sequence")
         value_seq = []
         for i_t in time_seq:
             if i_t < self._time[0]:
-                value_seq.append(self._time[0])
+                value_seq.append(self._value[0])
                 continue
             if i_t > self._time[len(self._time) - 1]:
-                value_seq.append(self._time[len(self._time) - 1])
+                value_seq.append(self._value[len(self._value) - 1])
                 continue
             for i in range(len(self._time) - 1):
-                if self._time[i] <= i_t <= self._time[i + 1]:
+                if self._time[i] <= i_t and i_t <= self._time[i + 1]:
                     v_delta = self._value[i + 1] - self._value[i]
                     t_delta = self._time[i + 1] - self._time[i]
                     slop = v_delta / t_delta
@@ -191,5 +193,4 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
 def check_length(a, b):
     return len(a) == len(b)
 
-ts = TimeSeries([1, 2], [1, 2])
 
