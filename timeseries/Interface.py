@@ -17,6 +17,7 @@ import reprlib
 import collections
 import numbers
 import types
+import bisect
 import numpy as np
 
 
@@ -195,21 +196,6 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
 
         Return a new TimeSeries with time_seq as times and interpolated values as values
         """
-        def binary_search(times, t):
-            l, r = 0, len(times) - 1
-            while l + 1 < r:
-                mid = (l + 2) // 2
-                if times[mid] < t:
-                    l = mid
-                else:
-                    r = mid
-            if times[l] >= t:
-                return (l - 1, l)
-            elif times[r] >= t:
-                return (l, r)
-            else:
-                return (r, r + 1)
-
         if not isinstance(time_seq, collections.Sequence) and not isinstance(time_seq, types.GeneratorType):
             raise TypeError("Input values must be Sequence or generator")
         local_times_seq = list(time_seq)
@@ -221,12 +207,11 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
             if i_t >= self._time[-1]:
                 value_seq.append(self._value[-1])
                 continue
-
-            l, r = binary_search(self._time, i_t)
-            v_delta = self._value[r] - self._value[l]
-            t_delta = self._time[r] - self._time[l]
+            l = bisect.bisect_left(self._time, i_t)
+            v_delta = self._value[l] - self._value[l - 1]
+            t_delta = self._time[l] - self._time[l - 1]
             slop = v_delta / t_delta
-            new_v = slop * (i_t - self._time[l]) + self._value[l]
+            new_v = slop * (i_t - self._time[l - 1]) + self._value[l - 1]
             value_seq.append(new_v)
         return self.__class__(value_seq, local_times_seq)
 
