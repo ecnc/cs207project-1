@@ -14,6 +14,8 @@ StreamTimeSeriesInterface(TimeSeriesInterface):
 
 import abc
 import reprlib
+import collections
+import numbers
 import numpy as np
 
 
@@ -183,12 +185,36 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
         Return pos(self)
         """
 
-    @abc.abstractmethod
     def interpolate(self, time_seq):
         """
-        Return a new timeseries that is a interpolation of current timeseries, \
-        with time stamps given by time_seq
+        Interpolate new time points from time_seq, the corresponding value is calculated on the assumption
+        that the values follow a piecewise-linear function
+
+        Input could be a Python sequence or a sequence generator
+
+        Return a new TimeSeries with time_seq as times and interpolated values as values
         """
+        if not isinstance(time_seq, collections.Sequence) and not isinstance(time_seq, collections.Iterable):
+            raise TypeError("Input values must be Sequence or generator")
+        local_times_seq = list(time_seq)
+        value_seq = []
+        for i_t in local_times_seq:
+            if i_t < self._time[0]:
+                value_seq.append(self._value[0])
+                continue
+            if i_t > self._time[len(self._time) - 1]:
+                value_seq.append(self._value[len(self._value) - 1])
+                continue
+            for i in range(len(self._time) - 1):
+                if i_t >= self._time[i] and i_t <= self._time[i + 1]:
+                    v_delta = self._value[i + 1] - self._value[i]
+                    t_delta = self._time[i + 1] - self._time[i]
+                    slop = v_delta / t_delta
+                    new_v = slop * (i_t - self._time[i]) + self._value[i]
+                    value_seq.append(new_v)
+                    break
+        return self.__class__(value_seq, local_times_seq)
+
 
     def mean(self):
         """
@@ -215,6 +241,10 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
         """
         Return the value of self._timeseries at the position index
         """
+        if not isinstance(index, numbers.Integral):
+            raise TypeError("Input index must be integer")
+        if index >= len(self._value):
+            raise ValueError("Input index is out of boundary")
         return self._timeseries[index]
 
 

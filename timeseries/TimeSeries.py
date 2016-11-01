@@ -26,7 +26,6 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
     TimeSeries([(-3, 1), (-4, 2)]), length=2
     >>> abs(A)
     5.0
-  
     """
 
     def __init__(self, values, times=None):
@@ -152,38 +151,6 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
         Return a new Timeseries instance with the same value at each time point
         """ 
         return TimeSeries(self._value, self._time)
-
-    def interpolate(self, time_seq):
-        """ 
-        Interpolate new time points from time_seq, the corresponding value is calculated on the assumption
-        that the values follow a piecewise-linear function
-
-        Input must be a Python sequence or a sequence generator
-
-        Return a TimeSeries instance with time_seq as times and interpolated values as values
-        """
-        #if not isinstance(time_seq, collections.Sequence):
-        #    raise TypeError("Input must be Sequence")
-        if not isinstance(time_seq, collections.Sequence) and not isinstance(time_seq, collections.Iterable):
-            raise TypeError("Input values must be Sequence or generator")
-        value_seq = []
-        local_times_seq = list(time_seq)
-        for i_t in local_times_seq:
-            if i_t < self._time[0]:
-                value_seq.append(self._value[0])
-                continue
-            if i_t > self._time[len(self._time) - 1]:
-                value_seq.append(self._value[len(self._value) - 1])
-                continue
-            for i in range(len(self._time) - 1):
-                if self._time[i] <= i_t and i_t <= self._time[i + 1]:
-                    v_delta = self._value[i + 1] - self._value[i]
-                    t_delta = self._time[i + 1] - self._time[i]
-                    slop = v_delta / t_delta
-                    new_v = slop * (i_t - self._time[i]) + self._value[i]
-                    value_seq.append(new_v)
-                    break
-        return TimeSeries(value_seq, local_times_seq)
 
     @property
     def lazy(self):
