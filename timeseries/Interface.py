@@ -14,6 +14,9 @@ StreamTimeSeriesInterface(TimeSeriesInterface):
 
 import abc
 import reprlib
+import collections
+import numbers
+import types
 import numpy as np
 
 
@@ -183,12 +186,49 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
         Return pos(self)
         """
 
-    @abc.abstractmethod
     def interpolate(self, time_seq):
         """
-        Return a new timeseries that is a interpolation of current timeseries, \
-        with time stamps given by time_seq
+        Interpolate new time points from time_seq, the corresponding value is calculated on the assumption
+        that the values follow a piecewise-linear function
+
+        Input must be a Python sequence or a sequence generator
+
+        Return a new TimeSeries with time_seq as times and interpolated values as values
         """
+        def binary_search(times, t):
+            l, r = 0, len(times) - 1
+            while l + 1 < r:
+                mid = (l + 2) // 2
+                if times[mid] < t:
+                    l = mid
+                else:
+                    r = mid
+            if times[l] >= t:
+                return (l - 1, l)
+            elif times[r] >= t:
+                return (l, r)
+            else:
+                return (r, r + 1)
+
+        if not isinstance(time_seq, collections.Sequence) and not isinstance(time_seq, types.GeneratorType):
+            raise TypeError("Input values must be Sequence or generator")
+        local_times_seq = list(time_seq)
+        value_seq = []
+        for i_t in local_times_seq:
+            if i_t <= self._time[0]:
+                value_seq.append(self._value[0])
+                continue
+            if i_t >= self._time[-1]:
+                value_seq.append(self._value[-1])
+                continue
+
+            l, r = binary_search(self._time, i_t)
+            v_delta = self._value[r] - self._value[l]
+            t_delta = self._time[r] - self._time[l]
+            slop = v_delta / t_delta
+            new_v = slop * (i_t - self._time[l]) + self._value[l]
+            value_seq.append(new_v)
+        return self.__class__(value_seq, local_times_seq)
 
     def mean(self):
         """
@@ -215,6 +255,10 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
         """
         Return the value of self._timeseries at the position index
         """
+        if not isinstance(index, numbers.Integral):
+            raise TypeError("Input index must be integer")
+        if index >= len(self._value):
+            raise ValueError("Input index is out of boundary")
         return self._timeseries[index]
 
 
