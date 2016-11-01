@@ -1,6 +1,7 @@
 import numpy as np
 from ArrayTimeSeries import ArrayTimeSeries, check_length, LazyOperation
 from pytest import raises
+from math import sqrt
 
 """
 test function
@@ -195,3 +196,13 @@ def test_lazy_check_length():
     thunk = check_length(l1,l2)
     assert isinstance(thunk, LazyOperation) == True
     assert thunk.eval() == True;
+
+#test mean
+def test_mean():
+    ts = ArrayTimeSeries([1, 2], [3, 4])
+    assert ts.mean() == 1.5
+
+#test std
+def test_std():
+    ts = ArrayTimeSeries([1, 2], [3, 4])
+    assert ts.std() == sqrt(0.25)
