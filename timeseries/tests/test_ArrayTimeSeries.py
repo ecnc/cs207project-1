@@ -31,6 +31,8 @@ def test_invalid_input():
         ArrayTimeSeries(1, [1])
     with raises(TypeError):
         ArrayTimeSeries([1, 2], 3)
+    with raises(ValueError):
+        ArrayTimeSeries([1, 2], [2, 2])
 
 #test len
 def test_len():
@@ -146,13 +148,13 @@ def test_abs():
 
 #test bool
 def test_bool():
-    ts = ArrayTimeSeries([3, 4], [2, 2])
+    ts = ArrayTimeSeries([3, 4], [2, 3])
     assert bool(ts) == True
 
 #test nge
 def test_neg():
-    ts = ArrayTimeSeries([3, 4], [2, 2])
-    assert np.all(-ts == ArrayTimeSeries([-3, -4], [2, 2])) == True
+    ts = ArrayTimeSeries([3, 4], [2, 3])
+    assert np.all(-ts == ArrayTimeSeries([-3, -4], [2, 3])) == True
 
 #test pos
 def test_pos():

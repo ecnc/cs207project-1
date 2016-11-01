@@ -44,7 +44,9 @@ class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
             if not isinstance(times, collections.Sequence) and not isinstance(values, np.ndarray):
                 raise TypeError("Input times must be Sequence")
             if len(times) != len(values):
-                raise ValueError("Input values sequence and times sequence must have the same length")
+                raise ValueError("Input values and times sequence must have the same length")
+            if len(times) != len(set(times)):
+                raise ValueError("Input times sequence must be unique")
             self._time = np.array(times)
         else:
             self._time = np.array(list(range(len(values))))

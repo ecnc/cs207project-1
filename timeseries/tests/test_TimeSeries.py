@@ -30,6 +30,8 @@ def test_invalid_input():
         TimeSeries(1, [1])
     with raises(TypeError):
         TimeSeries([1, 2], 3)
+    with raises(ValueError):
+        TimeSeries([1, 2], [2, 2])
 
 #test len
 def test_len():
