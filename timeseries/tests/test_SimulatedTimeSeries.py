@@ -22,15 +22,13 @@ def test_produce():
         ts = SimulatedTimeSeries(data)
         result = list(ts.produce(chunk_size))
         expect_result = []
-        chunk = []
-        for time, value in enumerate(make_simple_data(data_size)):
-            if len(chunk) >= chunk_size:
-                expect_result.append(chunk)
-                chunk = []
-            chunk.append((time, value))
-        if chunk:
-            expect_result.append(chunk)
-        assert result == expect_result
+        for time, value in enumerate(make_simple_data(data_size)):           
+            if len(expect_result) >= chunk_size:
+                assert result == expect_result
+                result = list(ts.produce(chunk_size))
+                expect_result = []
+            expect_result.append((time, value))
+
 
 
 """

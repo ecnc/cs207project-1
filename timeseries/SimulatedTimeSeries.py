@@ -5,12 +5,14 @@ from Interface import StreamTimeSeriesInterface
 class SimulatedTimeSeries(StreamTimeSeriesInterface):
     """
     Stream-like timeseries without storage
+
     """
     def __init__(self, gen):
         if not isinstance(gen, types.GeneratorType):
             print("start printing")
             print(gen)
-            for v in gen: print(v)
+            for v in gen: 
+                print(v)
         assert isinstance(gen, types.GeneratorType), "SimulatedTimeSeries should be initialized by a generator"
         self._gen = gen
         self._time = 0
@@ -31,16 +33,16 @@ class SimulatedTimeSeries(StreamTimeSeriesInterface):
 
     def produce(self, chunk=1):
         values = []
-        while True:
-            while len(values) < chunk:
-                try:
-                    values.append((self._time, next(self._gen)))
-                except StopIteration:
-                    if values: yield values
-                    return
+        while len(values) < chunk:
+            try:
+                values.append((self._time, next(self._gen)))
                 self._time += 1
-            yield values
-            values = []
+            except StopIteration:
+                return values
+        return values
+            
+            
+            
 
 
     """
@@ -59,8 +61,8 @@ class SimulatedTimeSeries(StreamTimeSeriesInterface):
                 delta = value - mu
                 mu = mu + delta / n
                 yield mu
-
-        ret = SimulatedTimeSeries(mean_generator)
+        mean_gen = mean_generator()
+        ret = SimulatedTimeSeries(mean_gen)
         return ret
 
     def online_std(self):
@@ -81,6 +83,9 @@ class SimulatedTimeSeries(StreamTimeSeriesInterface):
                 if n > 1:
                     stddev = math.sqrt(dev_accum / (n - 1))
                 yield stddev
-
-        ret = SimulatedTimeSeries(std_generator)
+        std_gen = std_generator()
+        ret = SimulatedTimeSeries(std_gen)
         return ret
+
+
+
