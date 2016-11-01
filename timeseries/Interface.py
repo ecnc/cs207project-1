@@ -356,3 +356,18 @@ class StreamTimeSeriesInterface(TimeSeriesInterface):
         """
         Return a time series of standard deviations
         """
+
+    @abc.abstractmethod
+    def mean(self):
+        """
+        Return the mean of the complete sequence
+        """
+
+    @abc.abstractmethod
+    def std(self):
+        """
+        Return the std of the complete sequence
+        """
+
+
+

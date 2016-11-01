@@ -134,5 +134,44 @@ class SimulatedTimeSeries(StreamTimeSeriesInterface):
         ret = SimulatedTimeSeries(std_gen)
         return ret
 
+    def mean(self):
+        """
+        Return the mean of the complete sequence
+
+        The sequence is considered infinite when the length exceeds 20000.
+        When the sequence is infinite it moves 20000 steps forward and would raise ValueError,
+        otherwise it exhausts the stream and returns the mean 
+        """
+        count = 0
+        gen_mean = self.online_mean()
+        while True:
+            t = gen_mean.produce()
+            if count > 20000:
+                     raise ValueError("The time series is a infinite sequence, can't calculate mean")
+            if t == []:
+                return saved_t[0][1]
+            saved_t = t
+            count = count + 1
+
+    def std(self):
+        """
+        Return the standard deviation of the complete sequence
+
+        The sequence is considered infinite when the length exceeds 20000.
+        When the sequence is infinite it moves 2000 steps forward and would raise ValueError,
+        otherwise it exhausts the stream and returns the standard deviation
+        """
+        count = 0
+        gen_std = self.online_std()
+        while True:
+            t = gen_std.produce()
+            if count > 20000:
+                     raise ValueError("The time series is a infinite sequence, can't calculate mean")
+            if t == []:
+                return saved_t[0][1]
+            saved_t = t
+            count = count + 1
+
+
 
 

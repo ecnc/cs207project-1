@@ -2,6 +2,7 @@ from SimulatedTimeSeries import SimulatedTimeSeries
 from itertools import count
 from random import normalvariate, random
 import numpy as np
+from pytest import raises
 
 def make_simple_data(stop=None):
     for value in count():
@@ -29,7 +30,33 @@ def test_produce():
                 expect_result = []
             expect_result.append((time, value))
 
+def test_mean():
+    finite_data = make_simple_data(10000)
+    ts = SimulatedTimeSeries(finite_data)
+    assert ts.mean() == 5000
 
+    infinite_data = make_simple_data(30000)
+    ts = SimulatedTimeSeries(infinite_data)
+    with raises(ValueError):
+        ts.mean()
+
+def test_std():
+    finite_data = make_simple_data(15000)
+    ts = SimulatedTimeSeries(finite_data)
+    finite_data_copy = make_simple_data(15000)
+    data_list = []
+    for time, value in enumerate(finite_data_copy):
+        data_list.append(value) 
+    expect_result = np.std(data_list)
+    err_std = (ts.std() - expect_result) / expect_result 
+    assert abs(err_std) < 1e-4
+
+    infinite_data = make_simple_data(30000)
+    ts = SimulatedTimeSeries(infinite_data)
+    with raises(ValueError):
+        ts.std()
+
+        
 
 """
 TODO:
