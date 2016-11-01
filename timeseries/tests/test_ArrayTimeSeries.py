@@ -197,12 +197,10 @@ def test_lazy_check_length():
     assert isinstance(thunk, LazyOperation) == True
     assert thunk.eval() == True;
 
-#test mean
 def test_mean():
     ts = ArrayTimeSeries([1, 2], [3, 4])
     assert ts.mean() == 1.5
 
-#test std
 def test_std():
     ts = ArrayTimeSeries([1, 2], [3, 4])
     assert ts.std() == sqrt(0.25)

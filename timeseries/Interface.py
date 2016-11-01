@@ -294,7 +294,6 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
         return class_name + '(' + reprlib.repr([item for item in self._timeseries]) +\
                '), length={}'.format(len(self))
 
-
 class StreamTimeSeriesInterface(TimeSeriesInterface):
     """ Interface class for StreamTimeSeries.
     This is an abstract interface class for stream-like timeseries.
