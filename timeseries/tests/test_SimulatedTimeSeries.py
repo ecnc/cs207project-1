@@ -42,7 +42,7 @@ def make_simple_data(stop=None):
 
 def make_stat_data(in_std, stop=None):
     """
-    A function to generate normally distributed data with mean of 1e4 and standard deviation m
+    A function to generate normally distributed data with mean of 1e4 and standard deviation in_std
 
     """
     for _ in count():
