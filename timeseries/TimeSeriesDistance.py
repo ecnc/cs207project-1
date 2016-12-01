@@ -1,7 +1,7 @@
 """
 Implementation of timeseries distance by kernel correlation
 
-Contain functions to:
+Contains functions to:
 1. Standardize the time series (subtract the mean and divide by the standard deviation)
 
 2. Calculate the cross-correlation
@@ -21,7 +21,9 @@ from scipy.stats import norm
 import matplotlib.pyplot as plt
 
 def tsmaker(m, s, j):
-    "generate timeseries for testing"
+    """
+    generate timeseries for testing
+    """
     t = np.arange(0.0, 1.0, 0.01)
     v = norm.pdf(t, m, s) + j*np.random.randn(100)
     return ts.ArrayTimeSeries(v, t)
@@ -31,15 +33,19 @@ def random_ts(a):
     v = a*np.random.random(100)
     return ts.ArrayTimeSeries(v, t)
 
-#stand() standardizes a time series
-#Input Parameters: x is an instance of ArrayTimeSeries, m is a float representing mean, s is a float representid standard deviation
-#Returns: time series
 def stand(x, m, s):
-    "standardize timeseries x my mean m and std deviation s"
+    """
+    stand() standardizes a time series
+    Input Parameters: x is an instance of ArrayTimeSeries, m is a float representing mean of the timeseries, s is a float representing standard deviation of the timeseries
+    Returns: time series
+    """
     return ((x.values() - m) / s)
 
 def ccor(ts1, ts2):
-    "given two standardized time series, compute their cross-correlation using FFT"
+    """
+    given two standardized time series, compute their cross-correlation using FFT
+    Source: http://www.cs.tufts.edu/~roni/PUB/ecml09-tskernels.pdf
+    """
     fourier_ts1 = nfft.fft(ts1)
     fourier_ts2 = nfft.fft(ts2)
     return (1/len(ts1)) * nfft.ifft(fourier_ts1 * np.conj(fourier_ts2)).real

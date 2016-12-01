@@ -45,24 +45,58 @@ import numpy as np
 
 
 class ValueRef(object):
-    " a reference to a string value on disk"
+    """
+    Reference to a string value on disk
+    Parameters
+    ----------
+    referent : optional
+        The value to store (default is None)
+    address : int, optional
+        Address of the referent (default is 0)
+        
+    Attributes
+    ----------
+    _referent
+    _address
+        
+    Notes
+    -----
+    WARNINGS:
+        - return type of get for a value will always be a string type
+    """
+
     def __init__(self, referent=None, address=0):
+    #"""
+    #Constructor for ValueRef.  Initializes with a value given by the `referent`
+    #at the address given by `address`
+        
+    #Parameters
+    #----------
+    #referent : int/float/string, optional
+    #    The value to be stored (default is None)
+    #address : int, optional
+    #    Address of the referent (default is 0)
+    # """
         self._referent = referent #value to store
         self._address = address #address to store at
         
     @property
     def address(self):
+        """returns address of the value"""
         return self._address
     
     def prepare_to_store(self, storage):
+        """acts as a placeholder for BinaryNodRef method which stores refs"""
         pass
 
     @staticmethod
     def referent_to_bytes(referent):
+        """converts string of referent value to bytes"""
         return referent.encode('utf-8')
 
     @staticmethod
     def bytes_to_referent(bytes):
+        """converts bytes back to string of the referent value"""
         return bytes.decode('utf-8')
 
     
@@ -80,7 +114,17 @@ class ValueRef(object):
             self._address = storage.write(self.referent_to_bytes(self._referent))
 
 class BinaryNodeRef(ValueRef):
-    "reference to a btree node on disk"
+    """"
+    A reference to a btree node on the disk. Specialized subclass of ValueRef to 
+    serialize/deserialize a BinaryNode
+    
+    Parameters
+    ----------
+    referent : optional
+        The value to store (default is None)
+    address : int, optional
+        Address of the referent (default is 0)
+    """
     
     #calls the BinaryNode's store_refs
     def prepare_to_store(self, storage):
@@ -110,6 +154,28 @@ class BinaryNodeRef(ValueRef):
         )
 
 class BinaryNode(object):
+    """
+    Implements a node in the binary tree
+    
+    Parameters
+    ----------
+    left_ref : BinaryNodeRef
+        Reference to the left child
+    key:
+        The key component in a key value pair
+    value_ref: ValueRef
+        Reference to the value that corresponds to key
+    right_ref: BinaryNodeRef
+        Reference to the right child
+    
+    Attributes
+    ----------
+    left_ref
+    key
+    value_ref
+    right_ref
+    """
+
     @classmethod
     def from_node(cls, node, **kwargs):
         "clone a node with some changes from another one"
@@ -121,6 +187,12 @@ class BinaryNode(object):
         )
 
     def __init__(self, left_ref, key, value_ref, right_ref):
+        """
+        Constructor for the BinaryNode class. Initializes with a `key`, a reference to the value
+        given by `value_ref`, a reference to the left child `left_ref`, and a
+        reference to the right child `right_ref`
+        """
+
         self.left_ref = left_ref
         self.key = key
         self.value_ref = value_ref
@@ -137,8 +209,31 @@ class BinaryNode(object):
         self.right_ref.store(storage)
 
 class BinaryTree(object):
-    "Immutable Binary Tree class. Constructs new tree on changes"
+    """"
+    Immutable Binary Tree class. Constructs a new tree when changes happen
+    
+    Parameters
+    ----------
+    storage : Storage
+        A Storage object to manage storage of Binary Tree
+        
+    Attributes
+    ----------
+    _storage : Storage
+        a storage object to manage read/write
+    _tree_ref : BinaryNodeRef
+        refrence to unbalanced bst, created when `self_refresh_tree_ref()` called in constructor
+    Notes
+    -----
+    WARNINGS:
+        - return type of get for a value will always be a string type
+    """
     def __init__(self, storage):
+        """
+        Constructor for the BinaryTree class. Initialized with an instance of Storage 
+        given by `storage`. The _refresh_tree_ref method initializes the value `_tree_ref`,
+        a reference to the root node or root address of the tree, which is itself a BinaryNodeRef.
+        """
         self._storage = storage
         self._refresh_tree_ref()
 
@@ -213,7 +308,8 @@ class BinaryTree(object):
         self._tree_ref = self._delete(node, key)
         
     def _delete(self, node, key):
-        "underlying delete implementation"
+        """underlying delete implementation. removes the node given by `node` when the `key` is a match.
+        traverses tree until it reaches the matching key."""
         if node is None:
             raise KeyError
         elif key < node.key:
@@ -246,22 +342,51 @@ class BinaryTree(object):
         return BinaryNodeRef(referent=new_node)
 
     def _follow(self, ref):
-        "get a node from a reference"
+        # """get a node from the given reference"""
         #calls BinaryNodeRef.get
         return ref.get(self._storage)
     
     def _find_max(self, node):
+        """returns the right most node, which is the maximum"""
         while True:
             next_node = self._follow(node.right_ref)
             if next_node is None:
                 return node
             node = next_node
+
 class Storage(object):
+    """
+    Storage class manages access to disk, controlling the reads and writes 
+    as well as locking of the files
+    Parameters
+    ----------
+    f : file name (string)
+        Database filename to store the binary tree
+    Attributes
+    ----------
+    _f : string
+        filename of the file to store to
+    
+    locked: bool
+        indicator for status of storage lock
+        
+    Notes
+    -----
+    WARNINGS:
+        - return type of get for a value will always be a string type
+    """
+
+
     SUPERBLOCK_SIZE = 4096
     INTEGER_FORMAT = "!Q"
     INTEGER_LENGTH = 8
 
     def __init__(self, f):
+        """
+        Constructor for the Storage class. Initializes with storage in file `f`,
+        initial storage being unlocked, and calls _ensure_superblock method so as 
+        to ensure the first write starts on sector boundary.
+        """
         self._f = f
         self.locked = False
         #we ensure that we start in a sector boundary
@@ -286,12 +411,14 @@ class Storage(object):
             return False
 
     def unlock(self):
+        """if locked, then unlock"""
         if self.locked:
             self._f.flush()
             portalocker.unlock(self._f)
             self.locked = False
 
     def _seek_end(self):
+        """find the end of the storage file"""
         self._f.seek(0, os.SEEK_END)
 
     def _seek_superblock(self):
@@ -299,22 +426,32 @@ class Storage(object):
         self._f.seek(0)
 
     def _bytes_to_integer(self, integer_bytes):
+        """
+        unpacks the string `integer_bytes` to format given by the `INTEGER_FORMAT`
+        returns the corresponding integer value
+        """
         return struct.unpack(self.INTEGER_FORMAT, integer_bytes)[0]
 
     def _integer_to_bytes(self, integer):
+        """returns a string with value given by `integer` packed according to format given by `INTEGER_FORMAT`"""
         return struct.pack(self.INTEGER_FORMAT, integer)
 
     def _read_integer(self):
+        """reads the next `INTEGER_LENGTH` positions in file and returns its integer value"""
         return self._bytes_to_integer(self._f.read(self.INTEGER_LENGTH))
 
     def _write_integer(self, integer):
+        """writes to storage file value of `integer` in bytes"""
         self.lock()
         self._f.write(self._integer_to_bytes(integer))
 
     def write(self, data):
-        "write data to disk, returning the adress at which you wrote it"
-        #first lock, get to end, get address to return, write size
-        #write data, unlock <==WRONG, dont want to unlock here
+        """
+        write data to disk, and return the address at which it is written
+        first lock, get to end, get address to return, write size
+        write data, do not unlock here
+
+        """
         self.lock()
         self._seek_end()
         object_address = self._f.tell()
@@ -323,15 +460,17 @@ class Storage(object):
         return object_address
 
     def read(self, address):
+        """returns the data at the location given by `address`"""
         self._f.seek(address)
         length = self._read_integer()
         data = self._f.read(length)
         return data
 
     def commit_root_address(self, root_address):
+        """write integer given by `root_address` into storage"""
         self.lock()
         self._f.flush()
-        #make sure you write root address at position 0
+        # write root address at position 0
         self._seek_superblock()
         #write is atomic because we store the address on a sector boundary.
         self._write_integer(root_address)
@@ -339,43 +478,94 @@ class Storage(object):
         self.unlock()
 
     def get_root_address(self):
+        """reads the first integer in the superblock"""
         #read the first integer in the file
         self._seek_superblock()
         root_address = self._read_integer()
         return root_address
 
     def close(self):
+        """closes the storage file"""
         self.unlock()
         self._f.close()
 
     @property
     def closed(self):
+
+        """checks if the storage file is closed and returns True if closed"""
         return self._f.closed
 
 class DBDB(object):
+    """
+    The DBDB class acts as a database, it holds the binary tree of all key, value 
+    pairs, as well as its storage manager
+    
+    Parameters
+    ----------
+    f : string
+        Database filename to store the binary tree
+        
+    Attributes
+    ----------
+    _storage : Storage
+        storage to be used with `_tree`
+    _tree : BinaryTree
+        unbalanced binary tree initialized with storage `_storage`
+        
+    Notes
+    -----
+    PRE:
+        - `key` must be of type int, float, or str
+        - `value` must be of type str
+        
+    WARNINGS:
+        - return type of `self._tree.get` for will always be a string type
+        - `DBDB.get` will always try to convert output to an int or float if possible,
+        otherwise it will be left as a string
+    """
+
     # constructor: creates a binary tree and stores on disk
     def __init__(self, f):
+
+        """
+        Constructor for DBDB. Initiallizes with storage in
+        file `f` and a binary tree is created with the initialized storage
+        
+        Parameters
+        ----------
+        f : file name (string)
+            Database filename to store the binary tree
+        """
         self._storage = Storage(f)
         self._tree = BinaryTree(self._storage)
 
     def _assert_not_closed(self):
+        """checks that the database is open, and raises error if not"""
         if self._storage.closed:
             raise ValueError('Database closed.')
 
     def close(self):
+        """closes the storage"""
         self._storage.close()
 
-    # commit() finalizes changes to disk
     def commit(self):
+        """
+        saves the final changes
+        calls BinaryTree commit to save
+        """
         self._assert_not_closed()
         self._tree.commit()
 
     def get(self, key):
+        """
+        returns the final value stored with key
+        calls BinaryTree get method to traverse the tree's branches
+        """
         self._assert_not_closed()
         return self._tree.get(key)
     
     def getRootKey(self):
-        #refresh the references and get new tree if needed
+        """refreshes the references and gets the new tree root key if needed"""
         if not self._tree._storage.locked:
             self._tree._refresh_tree_ref()
         #get the top level node
@@ -383,33 +573,95 @@ class DBDB(object):
         return node.key
     
     def getNodeKey(self, node):
+        """gets key of 'node'"""
         return node.key
     
     def getLeftChildNode(self, node = 0):
+        """gets the left child node"""
         if node == 0:
             node = self._tree._follow(self._tree._tree_ref)
         node = self._tree._follow(node.left_ref)
         return node
     
     def getRightChildNode(self, node = 0):
+        """gets the right child node"""
         if node == 0:
             node = self._tree._follow(self._tree._tree_ref)
         node = self._tree._follow(node.right_ref)
         return node         
 
     def set(self, key, value):
+        """
+        assigns a new value to key
+        calls BinaryTree set to set the key, value
+        """
         self._assert_not_closed()
         return self._tree.set(key, value)
 
     def delete(self, key):
+        """
+        deletes node with key and its value
+        calls BinaryTree delete to delete the node
+        """
         self._assert_not_closed()
         return self._tree.delete(key)
 
 
+def selectVPs(n = 20):
+    """
+    Randomly chose 20 vantage points from the 1000 TS generated, and create 20 database indexes
+    and return dictionary with numeric key from 1 - 20 and values are (name of TS selected as VP, name of database) 
+
+    Example of returned value: {('ts_806.npy', 'VPDB1.dbdb'), ...}
+
+    Precondition:
+    ------------
+    The name of the timeseries generated should follow the format 'ts_1.npy' ... to 'ts_1000.npy' 
+    """
+    VPindex = np.random.choice(np.arange(1, 1001), size = n, replace = False)
+    VPDict = {}
+    for i in range(n):
+        VPfileName = 'ts_'+ str(VPindex[i]) +'.npy'
+        VPDB = 'VPDB'+ str(i + 1) + '.dbdb'
+        VPDict[i+1] =  (VPfileName, VPDB)
+    return VPDict
+
+
 class VantagePointDB(DBDB):
-    def __init__(self, VPdbfilename, VPtsfilename):
+    """
+    Class to create an unbalanced binary search tree database for one single Vantage Point
+    BST key is the distance from the vantage point to all other timeseries points in the space
+    BST value is the name of the respective timeseries file
+    This class inherits from the class DBDB
+
+    Parameters
+    ---------
+    Constructor takes 2 filenames:
+    VPdbfilename: file name that will hold the Vantage Point BST 
+    VPtsfilename: file name that contains the vantage point timeseries
+
+    Attributes
+    ---------
+    VPDBfile : file name that will hold the Vantage Point BST 
+    VPTSfile : file name that contains the vantage point timeseries
+    VPDict: a dictionary which the key is just numeric index from 1 to n, and value is a tuple (vptsfilename, name of vantage point database filename)
+    
+    Pre-condition:
+    -------------
+    All timeseries files must already exist in file name syntax like this 'ts_1.npy' ... to 'ts_1000.npy' 
+    
+    WARNINGS
+    --------
+    - File directory for timeseries assumes UNIX OS syntax 
+    - Will raise exception if timeseries files do not exist in current directory
+    
+    """
+
+    def __init__(self, VPdbfilename, VPtsfilename, VPDict = {}):
+
         self.VPDBfile = VPdbfilename
         self.VPTSfile = VPtsfilename
+        self.VPDict = VPDict
         try:
             f = open(self.VPDBfile, 'r+b')
         except IOError:
@@ -419,6 +671,13 @@ class VantagePointDB(DBDB):
         
 
     def populate_VPDistTree(self, n, folderPath):
+        """
+        Create a single VP BST for n timeseries in the space with BST index as distance, for a single Vantage Point
+
+        Parameters:
+        n: number of timeseries to be compared with against the vantage point
+        folderPath: folder that contains the n timeseries files. If run on the current directory, it is '.' 
+        """
         # load VP timeseries
         vantagePoint = ts.ArrayTimeSeries(np.load(self.VPTSfile))
         stdVP =  stand(vantagePoint, vantagePoint.mean(), vantagePoint.std())
@@ -433,34 +692,23 @@ class VantagePointDB(DBDB):
         self.commit()
         self.close()
         
-# require VPDict created from before which contains a dictionary of {number: (ts, name of .dbdb)}
-# function creates k vantage point databases
+def createVPForest(k = 20, n = 1000):
+    """
+    Function creates k vantage point databases from n timeseries and populates VPDict
+    Returns vpdb list that contains k instances of VPDB
 
-"""
-Randomly chose 20 vantage points from the 1000 TS generated, and create 20 database indexes
-and return dictionary with numeric key from 1 - 20 and values are (name of TS selected as VP, name of database) 
-
-Example of returned value: {('ts_806.npy', 'VPDB1.dbdb'), ...}
-
-Precondition:
-------------
-The name of the timeseries generated should follow the format 'ts_1.npy' ... to 'ts_1000.npy' 
-"""
-
-def selectVPs(n = 20):
-    VPindex = np.random.choice(np.arange(1, 1001), size = n, replace = False)
-    VPDict = {}
-    for i in range(n):
-        VPfileName = 'ts_'+ str(VPindex[i]) +'.npy'
-        VPDB = 'VPDB'+ str(i + 1) + '.dbdb'
-        VPDict[i+1] =  (VPfileName, VPDB)
-    return VPDict
-            
-def createVPForest(k = 20):
-    # create the dictionary that contains info on the random TS chosen as vantage points
+    WARNINGS
+    --------
+    - File directory name to save VPDB assumes UNIX OS syntax 
+          
+    """
+    # create a dictionary of {index: (ts, name of .dbdb)
+    vpdbList = []
     VPDict = selectVPs()
     for i in range(k):
-        vpdb = VantagePointDB("./" + VPDict[i+1][1] , "./" + VPDict[i+1][0])
-        vpdb.populate_VPDistTree(1000, '.')
-    return VPDict
+        vpdb = VantagePointDB("./" + VPDict[i+1][1] , "./" + VPDict[i+1][0], VPDict)
+        vpdb.populate_VPDistTree(n, '.')
+        # store list of vpdb instances
+        vpdbList.append(vpdb)
+    return vpdbList
 

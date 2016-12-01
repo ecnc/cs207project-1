@@ -1,21 +1,40 @@
 """
 mostSimilarTS(inputFileName, howmany = 1)
 -------------
-- Expects the input file name (TS to be compared against) and howmany (the number of nearest neigbors to return)
+
+Parameters
+----------
+- Input file name (TS to be compared against)
+- VPDict: a dictionary which the key is just numeric index from 1 to n, and value is a tuple (vptsfilename, name of vantage point database filename))
+- howmany (the number of nearest neigbors to return)
+
+Returns
+-------
 - Returns the filenames of similar TS (the number of filenames returned depends on the input howmany)
 
 Preconditions:
 --------------
-- VPDict should have been executed in buildVPDBforest and the same VPDict is used
+- VPDict should have been built in buildVPDBforest and the attribute VPDict is used
 - The same VPDict should be used because it contains k key-value pairs that contain information about the TS selected as VP
 - target TS should be named in the format: 'ts_1.npy' ... to 'ts_1000.npy' 
 
+WARNINGS
+--------
+- File directory for timeseries assumes UNIX OS syntax 
+- Will raise exception if timeseries files do not exist in current directory
+
 Example input and output: 
 -------------------------
->>> mostSimilarTS.mostSimilarTS('./ts_100.npy', 10)
+> mostSimilarTS.mostSimilarTS('./ts_100.npy', VPDict, 10)
 Nodes in search region =  561
 ['./ts_100.npy', './ts_586.npy', './ts_106.npy', './ts_283.npy', './ts_478.npy', './ts_702.npy', './ts_248.npy', './ts_439.npy', './ts_800.npy', './ts_274.npy']
 
+>>> import generateAndStoreTS, TimeSeriesDistance, buildVPDBforest, mostSimilarTS, pickle
+>>> generateAndStoreTS.generateAndStoreTimeSeries()
+>>> VPDBList = buildVPDBforest.createVPForest()
+>>> mostSimilarTS.mostSimilarTS('./ts_1.npy', VPDBList[0].VPDict, 1)
+['./ts_1.npy']
+['./ts_1.npy']
 
 """
 
@@ -25,9 +44,9 @@ from TimeSeriesDistance import tsmaker, random_ts, stand, ccor, max_corr_at_phas
 import buildVPDBforest as VPDBforest
 
 def mostSimilarTS(inputFileName, VPDict, howmany = 1):
-    # distance from target to each of the VPs
+    # to store the distance from target to each of the VPs
     distance = []
-    # to store the database file name of VP (VPDBx.dbdb)
+    # to store the database file name of VP (VPDBx.dbdb) so that the VP can be identified
     VPDBList = []
     
     inputTS = ts.ArrayTimeSeries(np.load(inputFileName))
@@ -36,14 +55,19 @@ def mostSimilarTS(inputFileName, VPDict, howmany = 1):
     # find most similar vantage point distance measure
     
     for i in range(len(VPDict)):
+        # load vantage point TS, note increment in VPDict key is because it is indexed from 1-20
         vpTS = ts.ArrayTimeSeries(np.load(VPDict[i + 1][0]))
         VPstdTS =  stand(vpTS, vpTS.mean(), vpTS.std())
         VPDBList.append(VPDict[i + 1][1])
         distance.append(kcorr_dist(kernel_corr(inputstdTS, VPstdTS)))
+
+    # locate the best VP to the target TS
     bestdist = min(distance)
     bestdistIndex = np.argmin(distance)
     bestVPDBfilename = VPDBList[bestdistIndex]
-    bestVPDB = VPDBforest.VantagePointDB(bestVPDBfilename, VPDict[bestdistIndex + 1][0] )
+
+    # retrieve 
+    bestVPDB = VPDBforest.VantagePointDB(bestVPDBfilename, VPDict[bestdistIndex + 1][0], VPDict )
     
     # define the area to search for 
     regionRadius = 2.0*bestdist
@@ -79,8 +103,8 @@ def mostSimilarTS(inputFileName, VPDict, howmany = 1):
         # remove examined node
         nodesinregion.remove(node)
     
-    print ("Nodes in search region = ",  len(listofdistance))
-    print ("Most similar TS sorted from most similar TS onwards = " )
+    #print ("Nodes in search region = ",  len(listofdistance))
+    #print ("Most similar TS sorted from most similar TS onwards = " )
     answerList = [bestVPDB.get(nk) for (d, nk) in sorted(listofdistance)[0: howmany ]]
     print (answerList)
     return answerList
